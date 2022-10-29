@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"go.ifoodcorp.com.br/kafka-client-go/kafka"
 )
 
 type Config struct {
@@ -13,7 +12,7 @@ type Config struct {
 	ServerHost       string
 	HealthServerHost string
 	DatabaseConnStr  *DatabaseConfig
-	Kafka            kafka.ClientConfig
+	Kafka            *KafkaConfig
 }
 
 // DatabaseConfigs holds all the database connection parameters
@@ -28,6 +27,30 @@ type DatabaseConfig struct {
 	DatabaseRetryMaxArg         int
 	DatabaseNumRetries          int
 	DatabaseClusterTimeout      int
+}
+
+// KafkaConfigs holds all the kafka connection parameters
+type KafkaConfig struct {
+	ClientId                             string
+	Hosts                                []string
+	SchemaRegistryHost                   string
+	Acks                                 string
+	Timeout                              int
+	UseAuthentication                    bool
+	EnableTLS                            bool
+	SaslMechanism                        string
+	User                                 string
+	Password                             string
+	SchemaRegistryUser                   string
+	SchemaRegistryPassword               string
+	EnableEvents                         bool
+	MaxMessageBytes                      int
+	RetryMax                             int
+	DlqTopic                             string
+	ConsumerTopic                        string
+	ConsumerTopicStrategiesManagement    string
+	ConsumerTopicStrategiesManagementDLQ string
+	ConsumerGroup                        string
 }
 
 func NewConfig() *Config {
@@ -74,25 +97,27 @@ func buildDatabaseConfig(viperConfig *viper.Viper) *DatabaseConfig {
 	}
 }
 
-func buildKafkaClientConfig(config *viper.Viper) kafka.ClientConfig {
-	return kafka.ClientConfig{
-		UseAuthentication:      config.GetBool("KAFKA_HAS_AUTH"),
-		EnableTLS:              true,
-		Acks:                   "all",
-		BalanceStrategy:        kafka.BalanceStrategyRange,
-		Timeout:                config.GetInt("KAFKA_TIMEOUT"),
-		ClientId:               config.GetString("KAFKA_CLIENT_ID"),
-		SaslMechanism:          config.GetString("KAFKA_SASL_MECHANISM"),
-		KafkaUser:              config.GetString("KAFKA_USER"),
-		KafkaPassword:          config.GetString("KAFKA_PASSWORD"),
-		KafkaAddresses:         cast.ToStringSlice(config.GetString("KAFKA_ADDRESS")),
-		SchemaRegistryHost:     config.GetString("KAFKA_SCHEMA_REGISTRY_HOST"),
-		SchemaRegistryUser:     config.GetString("KAFKA_SCHEMA_REGISTRY_USER"),
-		SchemaRegistryPassword: config.GetString("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
-		EnableEvents:           config.GetBool("KAFKA_ENABLE_EVENTS"),
-		ConsumerConfig: &kafka.ConsumerConfig{
-			Group:             nil,
-			MaxProcessingTime: 0,
-		},
+func buildKafkaClientConfig(config *viper.Viper) *KafkaConfig {
+	return &KafkaConfig{
+		ClientId:                             config.GetString("KAFKA_CLIENT_ID"),
+		Hosts:                                cast.ToStringSlice(config.GetString("KAFKA_HOSTS")),
+		SchemaRegistryHost:                   config.GetString("KAFKA_SCHEMA_REGISTRY_HOST"),
+		Acks:                                 config.GetString("KAFKA_ACKS"),
+		Timeout:                              config.GetInt("KAFKA_TIMEOUT"),
+		UseAuthentication:                    config.GetBool("KAFKA_HAS_AUTH"),
+		EnableTLS:                            config.GetBool("KAFKA_ENABLE_TLS"),
+		SaslMechanism:                        config.GetString("KAFKA_SASL_MECHANISM"),
+		User:                                 config.GetString("KAFKA_USER"),
+		Password:                             config.GetString("KAFKA_PASSWORD"),
+		SchemaRegistryUser:                   config.GetString("KAFKA_SCHEMA_REGISTRY_USER"),
+		SchemaRegistryPassword:               config.GetString("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
+		EnableEvents:                         config.GetBool("KAFKA_ENABLE_EVENTS"),
+		MaxMessageBytes:                      config.GetInt("KAFKA_MAX_MESSAGE_BYTES"),
+		RetryMax:                             config.GetInt("KAFKA_RETRY_MAX"),
+		DlqTopic:                             config.GetString("KAFKA_DLQ_TOPIC"),
+		ConsumerTopic:                        config.GetString("KAFKA_CONSUMER_TOPIC"),
+		ConsumerTopicStrategiesManagement:    config.GetString("KAFKA_CONSUMER_TOPIC_STRATEGIES_MANAGEMENT"),
+		ConsumerTopicStrategiesManagementDLQ: config.GetString("KAFKA_CONSUMER_TOPIC_STRATEGIES_MANAGEMENT_DLQ"),
+		ConsumerGroup:                        config.GetString("KAFKA_CONSUMER_GROUP"),
 	}
 }
