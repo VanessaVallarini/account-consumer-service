@@ -11,7 +11,7 @@ import (
 
 type UserRepositoryInterface interface {
 	Create(ctx context.Context, u entities.User) *errorx.Error
-	GetById(ctx context.Context, u entities.User) (*entities.User, *errorx.Error)
+	GetById(ctx context.Context, u entities.UserRequestById) (*entities.User, *errorx.Error)
 	List(ctx context.Context) ([]entities.User, *errorx.Error)
 }
 
@@ -38,7 +38,7 @@ func (repo *UserRepository) Create(ctx context.Context, u entities.User) *errorx
 	return nil
 }
 
-func (repo *UserRepository) GetById(ctx context.Context, u entities.User) (*entities.User, *errorx.Error) {
+func (repo *UserRepository) GetById(ctx context.Context, u entities.UserRequestById) (*entities.User, *errorx.Error) {
 	user := entities.User{}
 	err := repo.conn.Query(`SELECT id, address_id, phone_id, name, email FROM user WHERE id = ? LIMIT 1`,
 		u.Id).WithContext(ctx).Consistency(gocql.One).Scan(

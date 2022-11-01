@@ -11,7 +11,7 @@ import (
 
 type PhoneRepositoryInterface interface {
 	Create(ctx context.Context, p entities.Phone) *errorx.Error
-	GetById(ctx context.Context, p entities.Phone) (*entities.Phone, *errorx.Error)
+	GetById(ctx context.Context, p entities.PhoneRequestById) (*entities.Phone, *errorx.Error)
 	List(ctx context.Context) ([]entities.Phone, *errorx.Error)
 }
 
@@ -37,7 +37,7 @@ func (repo *PhoneRepository) Create(ctx context.Context, p entities.Phone) *erro
 	return nil
 }
 
-func (repo *PhoneRepository) GetById(ctx context.Context, p entities.Phone) (*entities.Phone, *errorx.Error) {
+func (repo *PhoneRepository) GetById(ctx context.Context, p entities.PhoneRequestById) (*entities.Phone, *errorx.Error) {
 	phone := entities.Phone{}
 	err := repo.conn.Query(`SELECT id, country_code, area_code, number FROM phone WHERE id = ? LIMIT 1`,
 		p.Id).WithContext(ctx).Consistency(gocql.One).Scan(

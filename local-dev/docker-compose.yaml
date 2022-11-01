@@ -6,66 +6,53 @@ services:
     restart: always
     command: --smp 1 --memory 250M --overprovisioned 1 --authenticator PasswordAuthenticator
     volumes:
-      - ./build/package/docker/scylla/initial-load.sh:/initial-load.sh:Z
-      - ./build/package/docker/scylla/initial-load.conf:/etc/supervisord.conf.d/initial-load.conf:Z
-      - ./build/package/docker/scylla/cql:/home/cql:Z
+      - ../build/package/docker/scylla/initial-load.sh:/initial-load.sh:Z
+      - ../build/package/docker/scylla/initial-load.conf:/etc/supervisord.conf.d/initial-load.conf:Z
+      - ../build/package/docker/scylla/cql:/home/cql:Z
     ports:
       - "9042:9042"
 
   zookeeper:
+    container_name: "zookeeper"
     image: confluentinc/cp-zookeeper:7.0.1
-    container_name: zookeeper
-    healthcheck:
-      test: echo srvr | nc zookeeper 2181 || exit 1
-      retries: 20
-      interval: 10s
-    profiles: [ "infra" ]
+    restart: unless-stopped
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  broker:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: broker
-    healthcheck:
-      test: nc -z localhost 19092 || exit -1
-      interval: 10s
-      retries: 25
-      start_period: 20s
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+      - ZOOKEEPER_SERVER_ID=1
+      - ZOOKEEPER_SERVERS=zookeeper:22888:23888
     ports:
-      - 9092:9092
-      - 19092:19092
-      - 29092:29092
+      - "22181:2181"
+
+  kafka:
+    container_name: "kafka"
+    image: confluentinc/cp-kafka:7.0.1
+    restart: unless-stopped
     depends_on:
-      zookeeper:
-        condition: service_healthy
-    profiles: [ "infra" ]
+      - zookeeper
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,CONNECTIONS_FROM_HOST://localhost:19092,PLAINTEXT_INTERNAL://broker:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONNECTIONS_FROM_HOST:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: https://schema-registry:8085
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_SCHEMA_REGISTRY_URL=schemaregistry:8085
+    ports:
+      - "29092:29092"
 
   schema-registry:
+    container_name: "schemaregistry"
     image: confluentinc/cp-schema-registry:7.2.0
     hostname: schema-registry
-    container_name: schema-registry
-    healthcheck:
-      start_period: 10s
-      interval: 10s
-      retries: 20
-      test: curl schema-registry:8085/subjects || exit -1
+    restart: unless-stopped
     depends_on:
-      broker:
-        condition: service_healthy
+      - zookeeper
+      - kafka
+    environment:
+      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+      - SCHEMA_REGISTRY_HOST_NAME=schemaregistry
+      - SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8085
+      - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
     ports:
       - 8085:8085
-    profiles: [ "infra" ]
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8085

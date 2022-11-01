@@ -11,7 +11,7 @@ import (
 
 type AddressRepositoryInterface interface {
 	Create(ctx context.Context, a entities.Address) *errorx.Error
-	GetById(ctx context.Context, address entities.Address) (*entities.Address, *errorx.Error)
+	GetById(ctx context.Context, a entities.AddressRequestById) (*entities.Address, *errorx.Error)
 	List(ctx context.Context) ([]entities.Address, *errorx.Error)
 }
 
@@ -39,21 +39,21 @@ func (repo *AddressRepository) Create(ctx context.Context, a entities.Address) *
 	return nil
 }
 
-func (repo *AddressRepository) GetById(ctx context.Context, address entities.Address) (*entities.Address, *errorx.Error) {
-	a := entities.Address{}
+func (repo *AddressRepository) GetById(ctx context.Context, a entities.AddressRequestById) (*entities.Address, *errorx.Error) {
+	address := entities.Address{}
 	err := repo.conn.Query(`SELECT id, alias, city, district, public_place, zip_code FROM address WHERE id = ? LIMIT 1`,
-		address.Id).WithContext(ctx).Consistency(gocql.One).Scan(
-		&a.Id,
-		&a.Alias,
-		&a.City,
-		&a.District,
-		&a.PublicPlace,
-		&a.ZipCode,
+		a.Id).WithContext(ctx).Consistency(gocql.One).Scan(
+		&address.Id,
+		&address.Alias,
+		&address.City,
+		&address.District,
+		&address.PublicPlace,
+		&address.ZipCode,
 	)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during select query")
 	}
-	return &a, nil
+	return &address, nil
 }
 
 func (repo *AddressRepository) List(ctx context.Context) ([]entities.Address, *errorx.Error) {

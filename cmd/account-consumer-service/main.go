@@ -4,7 +4,6 @@ import (
 	"account-consumer-service/internal/config"
 	"account-consumer-service/internal/entities"
 	"account-consumer-service/internal/pkg/kafka"
-	"account-consumer-service/internal/pkg/kafka/consumer"
 	"account-consumer-service/internal/pkg/repository"
 	"context"
 	"fmt"
@@ -12,23 +11,27 @@ import (
 
 	"github.com/Shopify/sarama"
 	"github.com/gocql/gocql"
-	"go.uber.org/zap"
+	"github.com/joomcode/errorx"
 )
 
 func main() {
 
 	ctx := context.Background()
-
 	config := config.NewConfig()
-
 	var err error
+	/*
+		kafkaClient, err := kafka.NewKafkaClient(config.Kafka)
+		if err != nil {
+			zap.S().Fatal(err)
+		}
 
-	kafkaClient, err := kafka.NewKafkaClient(config.Kafka)
-	if err != nil {
-		zap.S().Fatal(err)
-	}
+		Producer(10, ctx, config.Kafka, kafkaClient)
 
-	Producer(10, ctx, config.Kafka, kafkaClient)
+		err = consumer.NewConsumer(ctx, config.Kafka, kafkaClient)
+		if err != nil {
+			zap.S().Fatal(err)
+		}
+	*/
 
 	//scylla
 	cluster := gocql.NewCluster(config.DatabaseConnStr.DatabaseHost)
@@ -43,137 +46,136 @@ func main() {
 		fmt.Println(err)
 	}
 
-	//kafka
-
-	err = consumer.NewConsumer(ctx, config.Kafka, kafkaClient)
-	if err != nil {
-		zap.S().Fatal(err)
-	}
-
 	registry := repository.NewRegistryRepository(session)
+	var errorx *errorx.Error
 
 	//createAddress
 	fmt.Println("CRIANDO ENDEREÇO...")
-	a := entities.Address{
+	aCreate := entities.Address{
 		Alias:       "SP",
 		City:        "São Paulo",
 		District:    "Sé",
 		PublicPlace: "Praça da Sé",
 		ZipCode:     "01001-000",
 	}
-	errCreateA := registry.AddressRepository().Create(ctx, a)
-	if errCreateA != nil {
-		fmt.Println(errCreateA)
+	errorx = registry.AddressRepository().Create(ctx, aCreate)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
 	fmt.Println("ENDEREÇO CRIADO!")
 
+	fmt.Println()
+
 	//getAddressAll
 	fmt.Println("PEGANDO TODOS OS ENDEREÇOS...")
-	aList, errListA := registry.AddressRepository().List(ctx)
-	if errListA != nil {
-		fmt.Println(errListA)
+	aList, errorx := registry.AddressRepository().List(ctx)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
 	for _, a := range aList {
-		fmt.Println(a.Id)
-		fmt.Println(a.Alias)
-		fmt.Println(a.City)
-		fmt.Println(a.District)
-		fmt.Println(a.PublicPlace)
-		fmt.Println(a.ZipCode)
-		fmt.Printf("Id:%v. Alias:%s, City:%s, District:%s, PublicPlace:%s, ZipCode:%s", a.Id, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode)
+		fmt.Printf("Id:%v. Alias:%s, City:%s, District:%s, PublicPlace:%s, ZipCode:%s \n", a.Id, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode)
 	}
 	fmt.Println("PEGAMOS TODOS OS ENDEREÇOS!")
 
+	fmt.Println()
+
 	//getAddressById
 	fmt.Println("PEGANDO O ENDEREÇO POR ID...")
-	reqA := entities.Address{
-		Id: aList[0].Id,
+	reqAById := entities.AddressRequestById{
+		Id: gocql.UUID.String(aList[0].Id),
 	}
-	retA, errGetAById := registry.AddressRepository().GetById(ctx, reqA)
-	if errGetAById != nil {
-		fmt.Println(errGetAById)
+	retAById, errorx := registry.AddressRepository().GetById(ctx, reqAById)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
-	fmt.Println(retA.Id)
+	fmt.Printf("Id:%v. Alias:%s, City:%s, District:%s, PublicPlace:%s, ZipCode:%s \n", retAById.Id, retAById.Alias, retAById.City, retAById.District, retAById.PublicPlace, retAById.ZipCode)
 	fmt.Println("PEGAMOS O ENDEREÇO POR ID!")
+
+	fmt.Println()
+	fmt.Println()
 
 	//createPhone
 	fmt.Println("CRIANDO PHONE...")
-	p := entities.Phone{
+	pCreate := entities.Phone{
 		CountryCode: "55",
 		AreaCode:    "11",
 		Number:      "964127229",
 	}
-	errCreateP := registry.PhoneRepository().Create(ctx, p)
-	if errCreateP != nil {
-		fmt.Println(errCreateP)
+	errorx = registry.PhoneRepository().Create(ctx, pCreate)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
 	fmt.Println("PHONE CRIADO!")
 
+	fmt.Println()
+
 	//getPhoneAll
 	fmt.Println("PEGANDO TODOS OS PHONES...")
-	pList, errListP := registry.PhoneRepository().List(ctx)
-	if errListP != nil {
-		fmt.Println(errListP)
+	pList, errorx := registry.PhoneRepository().List(ctx)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
 	for _, p := range pList {
-		fmt.Println(p.Id)
-		fmt.Println(p.CountryCode)
-		fmt.Println(p.AreaCode)
-		fmt.Println(p.Number)
-		fmt.Printf("Id:%v. CountryCode:%s, AreaCode:%s, Number:%s", p.Id, p.CountryCode, p.AreaCode, p.Number)
+		fmt.Printf("Id:%v. CountryCode:%s, AreaCode:%s, Number:%s \n", p.Id, p.CountryCode, p.AreaCode, p.Number)
 	}
 	fmt.Println("PEGAMOS TODOS OS PHONES!")
 
+	fmt.Println()
+
 	//getPhoneById
 	fmt.Println("PEGANDO O PHONE POR ID...")
-	reqP := entities.Phone{
-		Id: pList[0].Id,
+	reqPById := entities.PhoneRequestById{
+		Id: gocql.UUID.String(pList[0].Id),
 	}
-	retP, errGetPById := registry.PhoneRepository().GetById(ctx, reqP)
-	if errGetPById != nil {
-		fmt.Println(errGetPById)
+	retPById, errorx := registry.PhoneRepository().GetById(ctx, reqPById)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
-	fmt.Println(retP.Id)
+	fmt.Printf("Id:%v. CountryCode:%s, AreaCode:%s, Number:%s \n", retPById.Id, retPById.CountryCode, retPById.AreaCode, retPById.Number)
 	fmt.Println("PEGAMOS O PHONE POR ID!")
+
+	fmt.Println()
+	fmt.Println()
 
 	//createUser
 	fmt.Println("CRIANDO USER...")
-	u := entities.User{
-		AddressId: retA.Id.String(),
-		PhoneId:   retP.Id.String(),
+	uCreate := entities.User{
+		AddressId: retAById.Id.String(),
+		PhoneId:   retPById.Id.String(),
 		Name:      "Van",
 		Email:     "van@email.com",
 	}
-	errCreateU := registry.UserRepository().Create(ctx, u)
-	if errCreateU != nil {
-		fmt.Println(errCreateU)
+	errorx = registry.UserRepository().Create(ctx, uCreate)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
 	fmt.Println("USER CRIADO!")
 
+	fmt.Println()
+
 	//getUserAll
 	fmt.Println("PEGANDO TODOS OS USERS...")
-	uList, errListU := registry.UserRepository().List(ctx)
-	if errListU != nil {
-		fmt.Println(errListU)
+	uList, errorx := registry.UserRepository().List(ctx)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
 	for _, u := range uList {
-		fmt.Println(u.AddressId)
-		fmt.Println(u.PhoneId)
-		fmt.Println(u.Name)
-		fmt.Println(u.Email)
-		fmt.Printf("AddressId:%v. PhoneId:%s, Name:%s, Email:%s", u.AddressId, u.PhoneId, u.Name, u.Email)
+		fmt.Printf("AddressId:%v. PhoneId:%s, Name:%s, Email:%s \n", u.AddressId, u.PhoneId, u.Name, u.Email)
 	}
 	fmt.Println("PEGAMOS TODOS OS USERS!")
 
+	fmt.Println()
+
 	//getUserById
-	reqUser := entities.User{
-		Id: uList[0].Id,
+	fmt.Println("PEGANDO O USER POR ID...")
+	reqUById := entities.UserRequestById{
+		Id: gocql.UUID.String(uList[0].Id),
 	}
-	retUser, errGetUById := registry.UserRepository().GetById(ctx, reqUser)
-	if errGetUById != nil {
-		fmt.Println(errGetUById)
+	retUById, errorx := registry.UserRepository().GetById(ctx, reqUById)
+	if errorx != nil {
+		fmt.Println(errorx)
 	}
-	fmt.Println(retUser.Id)
+	fmt.Printf("AddressId:%v. PhoneId:%s, Name:%s, Email:%s \n", retUById.AddressId, retUById.PhoneId, retUById.Name, retUById.Email)
 	fmt.Println("PEGAMOS O USER POR ID!")
 
 }

@@ -8,3 +8,7 @@ type Phone struct {
 	AreaCode    string     `json:"area_code"`
 	Number      string     `json:"number"`
 }
+
+type PhoneRequestById struct {
+	Id string `json:"id" validate:"required"`
+}

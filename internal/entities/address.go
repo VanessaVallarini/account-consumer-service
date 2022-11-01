@@ -10,3 +10,7 @@ type Address struct {
 	PublicPlace string     `json:"public_place"`
 	ZipCode     string     `json:"zip_code"`
 }
+
+type AddressRequestById struct {
+	Id string `json:"id" validate:"required"`
+}
