@@ -1,7 +1,7 @@
 package consumer
 
 import (
-	"account-consumer-service/internal/config"
+	"account-consumer-service/internal/entities"
 	"account-consumer-service/internal/pkg/kafka"
 	"context"
 	"log"
@@ -29,7 +29,7 @@ type Consumer struct {
 	producer                             sarama.SyncProducer
 }
 
-func NewConsumer(ctx context.Context, cfg *config.KafkaConfig, kafkaClient *kafka.KafkaClient) error {
+func NewConsumer(ctx context.Context, cfg *entities.KafkaConfig, kafkaClient *kafka.KafkaClient) error {
 	producer, err := sarama.NewSyncProducerFromClient(kafkaClient.Client)
 	if err != nil {
 		zap.S().Fatalf("Error creating producer groupClient: %v", err)
@@ -37,12 +37,11 @@ func NewConsumer(ctx context.Context, cfg *config.KafkaConfig, kafkaClient *kafk
 	producer = otelsarama.WrapSyncProducer(kafkaClient.Client.Config(), producer)
 
 	consumer := Consumer{
-		sr:                                   kafkaClient.SchemaRegistry,
-		ready:                                make(chan bool),
-		producer:                             producer,
-		dlqTopic:                             cfg.DlqTopic,
-		consumerTopic:                        cfg.ConsumerTopic,
-		ConsumerTopicStrategiesManagementDLQ: cfg.ConsumerTopicStrategiesManagementDLQ,
+		sr:            kafkaClient.SchemaRegistry,
+		ready:         make(chan bool),
+		producer:      producer,
+		dlqTopic:      cfg.DlqTopic,
+		consumerTopic: cfg.ConsumerTopic,
 	}
 
 	//sarama.Logger = zap.NewStdLog(zap.L())
@@ -57,7 +56,7 @@ func NewConsumer(ctx context.Context, cfg *config.KafkaConfig, kafkaClient *kafk
 			ctx := context.Background()
 			propagators := propagation.TraceContext{}
 			handler := otelsarama.WrapConsumerGroupHandler(&consumer, otelsarama.WithPropagators(propagators))
-			if err := kafkaClient.GroupClient.Consume(ctx, []string{cfg.ConsumerTopic, cfg.ConsumerTopicStrategiesManagement}, handler); err != nil {
+			if err := kafkaClient.GroupClient.Consume(ctx, []string{cfg.ConsumerTopic}, handler); err != nil {
 				zap.S().Errorf("Error from consumer: %v", err)
 			}
 			// check if context was cancelled, signaling that the consumer should stop
