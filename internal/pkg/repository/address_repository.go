@@ -5,6 +5,7 @@ import (
 	"account-consumer-service/internal/pkg/scylla"
 	"context"
 
+	"github.com/gocql/gocql"
 	"github.com/joomcode/errorx"
 )
 
@@ -20,7 +21,7 @@ func NewAddressRepository(s *scylla.IScylla) *AddressRepository {
 
 func (repo *AddressRepository) Insert(ctx context.Context, a models.Address) *errorx.Error {
 	stmt := `INSERT INTO address (id, alias, city, district, public_place ,zip_code) VALUES (uuid(),?,?,?,?,?)`
-	err := repo.scylla.Insert(stmt, ctx, a)
+	err := repo.scylla.Insert(stmt, ctx, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -29,32 +30,66 @@ func (repo *AddressRepository) Insert(ctx context.Context, a models.Address) *er
 
 func (repo *AddressRepository) GetById(ctx context.Context, a models.AddressRequestById) (*models.Address, *errorx.Error) {
 	stmt := `SELECT id, alias, city, district, public_place, zip_code FROM address WHERE id = ? LIMIT 1`
-	exec := repo.scylla.GetById(stmt, ctx, a)
-	address := models.Address{}
-	scan := exec.Scan(
-		&address.Id,
-		&address.Alias,
-		&address.City,
-		&address.District,
-		&address.PublicPlace,
-		&address.ZipCode,
-	)
-	if scan != nil {
-		return nil, errorx.Decorate(scan, "error during scan")
+	rows := repo.scylla.GetById(stmt, ctx, a.Id)
+	scan, err := repo.scanAddressById(rows)
+	if err != nil {
+		return nil, errorx.Decorate(err, "error during scan")
 	}
-	return &address, nil
+	return scan, nil
 }
 
 func (repo *AddressRepository) List(ctx context.Context) ([]models.Address, *errorx.Error) {
-	stmt := `SELECT id, alias, city, district, public_place, zip_code FROM address WHERE id = ? LIMIT 1`
-	exec := repo.scylla.List(stmt, ctx)
+	stmt := `SELECT * FROM address`
+	rows := repo.scylla.List(stmt, ctx)
+	scan, err := repo.scanAddressList(rows)
+	if err != nil {
+		return nil, errorx.Decorate(err, "error during scan")
+	}
+	return scan, nil
+}
+
+func (repo *AddressRepository) Update(ctx context.Context, a models.Address) *errorx.Error {
+	stmt := `UPDATE address SET alias = ?, city = ?, district = ?, public_place = ?, zip_code = ? WHERE id = ?`
+	err := repo.scylla.Update(stmt, ctx, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode, a.Id)
+	if err != nil {
+		return errorx.Decorate(err, "error during insert query")
+	}
+	return nil
+}
+
+func (repo *AddressRepository) Delete(ctx context.Context, a models.AddressRequestById) *errorx.Error {
+	stmt := `DELETE from address WHERE id = ?`
+	err := repo.scylla.Delete(stmt, ctx, a.Id)
+	if err != nil {
+		return errorx.Decorate(err, "error during insert query")
+	}
+	return nil
+}
+
+func (repo *AddressRepository) scanAddressById(rows *gocql.Query) (*models.Address, error) {
+	a := models.Address{}
+	err := rows.Scan(
+		&a.Id,
+		&a.Alias,
+		&a.City,
+		&a.District,
+		&a.PublicPlace,
+		&a.ZipCode,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &a, nil
+}
+
+func (repo *AddressRepository) scanAddressList(rows *gocql.Iter) ([]models.Address, error) {
 	aList := []models.Address{}
 	a := models.Address{}
-	scan := exec.Scanner()
+	scan := rows.Scanner()
 	for scan.Next() {
 		err := scan.Scan(&a.Id, &a.Alias, &a.City, &a.District, &a.PublicPlace, &a.ZipCode)
 		if err != nil {
-			return nil, errorx.Decorate(err, "error during scanner")
+			return nil, err
 		}
 		aList = append(aList, a)
 	}
