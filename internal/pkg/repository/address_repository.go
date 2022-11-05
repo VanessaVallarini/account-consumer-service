@@ -9,11 +9,19 @@ import (
 	"github.com/joomcode/errorx"
 )
 
-type AddressRepository struct {
-	scylla *db.Scylla
+type FormRepositoryInterface interface {
+	Insert(ctx context.Context, a models.Address) *errorx.Error
+	GetById(ctx context.Context, a models.AddressRequestById) (*models.Address, *errorx.Error)
+	List(ctx context.Context) ([]models.Address, *errorx.Error)
+	Update(ctx context.Context, a models.Address) *errorx.Error
+	Delete(ctx context.Context, a models.AddressRequestById) *errorx.Error
 }
 
-func NewAddressRepository(s *db.Scylla) *AddressRepository {
+type AddressRepository struct {
+	scylla db.ScyllaConnection
+}
+
+func NewAddressRepository(s db.ScyllaConnection) *AddressRepository {
 	return &AddressRepository{
 		scylla: s,
 	}

@@ -9,6 +9,14 @@ import (
 	"github.com/joomcode/errorx"
 )
 
+type PhoneRepositoryInterface interface {
+	Insert(ctx context.Context, p models.Phone) *errorx.Error
+	GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error)
+	List(ctx context.Context) ([]models.Phone, *errorx.Error)
+	Update(ctx context.Context, p models.Phone) *errorx.Error
+	Delete(ctx context.Context, a models.PhoneRequestById) *errorx.Error
+}
+
 type PhoneRepository struct {
 	scylla *db.Scylla
 }
@@ -46,6 +54,24 @@ func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.
 		return nil, errorx.Decorate(err, "error during scan")
 	}
 	return scan, nil
+}
+
+func (repo *PhoneRepository) Update(ctx context.Context, p models.Phone) *errorx.Error {
+	stmt := `UPDATE phone SET area_code = ?, country_code = ?, number = ? WHERE id = ?`
+	err := repo.scylla.Update(stmt, ctx, p.AreaCode, p.CountryCode, p.Number, p.Id)
+	if err != nil {
+		return errorx.Decorate(err, "error during insert query")
+	}
+	return nil
+}
+
+func (repo *PhoneRepository) Delete(ctx context.Context, u models.PhoneRequestById) *errorx.Error {
+	stmt := `DELETE from phone WHERE id = ?`
+	err := repo.scylla.Delete(stmt, ctx, u.Id)
+	if err != nil {
+		return errorx.Decorate(err, "error during insert query")
+	}
+	return nil
 }
 
 func (repo *PhoneRepository) scanById(rows *gocql.Query) (*models.Phone, error) {

@@ -7,6 +7,14 @@ import (
 	"github.com/gocql/gocql"
 )
 
+type ScyllaConnection interface {
+	Insert(stmt string, ctx context.Context, values ...interface{}) error
+	GetById(stmt string, ctx context.Context, values ...interface{}) *gocql.Query
+	List(stmt string, ctx context.Context) *gocql.Iter
+	Update(stmt string, ctx context.Context, values ...interface{}) error
+	Delete(stmt string, ctx context.Context, values ...interface{}) error
+}
+
 type Scylla struct {
 	Session *gocql.Session
 }
@@ -30,27 +38,27 @@ func NewScylla(c *models.DatabaseConfig) *Scylla {
 	}
 }
 
-func (i *Scylla) Insert(stmt string, ctx context.Context, values ...interface{}) error {
-	q := i.Session.Query(stmt, values...).WithContext(ctx)
+func (s *Scylla) Insert(stmt string, ctx context.Context, values ...interface{}) error {
+	q := s.Session.Query(stmt, values...).WithContext(ctx)
 	return q.Exec()
 }
 
-func (i *Scylla) GetById(stmt string, ctx context.Context, values ...interface{}) *gocql.Query {
-	q := i.Session.Query(stmt, values...).WithContext(ctx)
+func (s *Scylla) GetById(stmt string, ctx context.Context, values ...interface{}) *gocql.Query {
+	q := s.Session.Query(stmt, values...).WithContext(ctx)
 	return q.Consistency(gocql.One)
 }
 
-func (i *Scylla) List(stmt string, ctx context.Context) *gocql.Iter {
-	q := i.Session.Query(stmt).WithContext(ctx)
+func (s *Scylla) List(stmt string, ctx context.Context) *gocql.Iter {
+	q := s.Session.Query(stmt).WithContext(ctx)
 	return q.Iter()
 }
 
-func (i *Scylla) Update(stmt string, ctx context.Context, values ...interface{}) error {
-	q := i.Session.Query(stmt, values...).WithContext(ctx)
+func (s *Scylla) Update(stmt string, ctx context.Context, values ...interface{}) error {
+	q := s.Session.Query(stmt, values...).WithContext(ctx)
 	return q.Exec()
 }
 
-func (i *Scylla) Delete(stmt string, ctx context.Context, values ...interface{}) error {
-	q := i.Session.Query(stmt, values...).WithContext(ctx)
+func (s *Scylla) Delete(stmt string, ctx context.Context, values ...interface{}) error {
+	q := s.Session.Query(stmt, values...).WithContext(ctx)
 	return q.Exec()
 }

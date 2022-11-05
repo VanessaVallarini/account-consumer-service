@@ -48,6 +48,24 @@ func (repo *UserRepository) List(ctx context.Context) ([]models.User, *errorx.Er
 	return scan, nil
 }
 
+func (repo *UserRepository) Update(ctx context.Context, u models.User) *errorx.Error {
+	stmt := `UPDATE user SET address_id = ?, phone_id = ?, email = ?, name = ? WHERE id = ?`
+	err := repo.scylla.Update(stmt, ctx, u.AddressId, u.PhoneId, u.Email, u.Name, u.Id)
+	if err != nil {
+		return errorx.Decorate(err, "error during insert query")
+	}
+	return nil
+}
+
+func (repo *UserRepository) Delete(ctx context.Context, u models.UserRequestById) *errorx.Error {
+	stmt := `DELETE from user WHERE id = ?`
+	err := repo.scylla.Delete(stmt, ctx, u.Id)
+	if err != nil {
+		return errorx.Decorate(err, "error during insert query")
+	}
+	return nil
+}
+
 func (repo *UserRepository) scanById(rows *gocql.Query) (*models.User, error) {
 	u := models.User{}
 	err := rows.Scan(
