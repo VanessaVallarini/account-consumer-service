@@ -1,7 +1,6 @@
 package main
 
 import (
-	"account-consumer-service/internal/config"
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/kafka"
 	"account-consumer-service/internal/service/consumer"
@@ -20,10 +19,12 @@ func Start(ctx context.Context, cfg *models.KafkaConfig) {
 func main() {
 	//var err error
 
-	ctx := context.Background()
-	config := config.NewConfig()
-	Start(ctx, config.Kafka)
+	//ctx := context.Background()
+	//config := config.NewConfig()
+	//Start(ctx, config.Kafka)
 	//scylla := scylla.NewScylla(config.Database)
+
+	//addressRepository := repository.NewAddressRepository(scylla)
 
 	/* kafkaClient, _ := kafka.NewKafkaClient(config.Kafka)
 	p, _ := kafkaClient.NewProducer()
