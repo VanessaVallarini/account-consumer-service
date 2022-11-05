@@ -2,7 +2,7 @@ package repository
 
 import (
 	"account-consumer-service/internal/models"
-	"account-consumer-service/internal/pkg/scylla"
+	"account-consumer-service/internal/pkg/db"
 	"context"
 
 	"github.com/gocql/gocql"
@@ -10,10 +10,10 @@ import (
 )
 
 type AddressRepository struct {
-	scylla *scylla.IScylla
+	scylla *db.Scylla
 }
 
-func NewAddressRepository(s *scylla.IScylla) *AddressRepository {
+func NewAddressRepository(s *db.Scylla) *AddressRepository {
 	return &AddressRepository{
 		scylla: s,
 	}
@@ -31,7 +31,7 @@ func (repo *AddressRepository) Insert(ctx context.Context, a models.Address) *er
 func (repo *AddressRepository) GetById(ctx context.Context, a models.AddressRequestById) (*models.Address, *errorx.Error) {
 	stmt := `SELECT id, alias, city, district, public_place, zip_code FROM address WHERE id = ? LIMIT 1`
 	rows := repo.scylla.GetById(stmt, ctx, a.Id)
-	scan, err := repo.scanAddressById(rows)
+	scan, err := repo.scanById(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
 	}
@@ -41,7 +41,7 @@ func (repo *AddressRepository) GetById(ctx context.Context, a models.AddressRequ
 func (repo *AddressRepository) List(ctx context.Context) ([]models.Address, *errorx.Error) {
 	stmt := `SELECT * FROM address`
 	rows := repo.scylla.List(stmt, ctx)
-	scan, err := repo.scanAddressList(rows)
+	scan, err := repo.scanList(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
 	}
@@ -66,7 +66,7 @@ func (repo *AddressRepository) Delete(ctx context.Context, a models.AddressReque
 	return nil
 }
 
-func (repo *AddressRepository) scanAddressById(rows *gocql.Query) (*models.Address, error) {
+func (repo *AddressRepository) scanById(rows *gocql.Query) (*models.Address, error) {
 	a := models.Address{}
 	err := rows.Scan(
 		&a.Id,
@@ -82,7 +82,7 @@ func (repo *AddressRepository) scanAddressById(rows *gocql.Query) (*models.Addre
 	return &a, nil
 }
 
-func (repo *AddressRepository) scanAddressList(rows *gocql.Iter) ([]models.Address, error) {
+func (repo *AddressRepository) scanList(rows *gocql.Iter) ([]models.Address, error) {
 	aList := []models.Address{}
 	a := models.Address{}
 	scan := rows.Scanner()

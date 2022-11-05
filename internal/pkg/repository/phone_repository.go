@@ -2,35 +2,26 @@ package repository
 
 import (
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/db"
 	"context"
-	"strings"
 
 	"github.com/gocql/gocql"
 	"github.com/joomcode/errorx"
 )
 
-type IPhoneRepository interface {
-	Insert(ctx context.Context, p models.Phone) *errorx.Error
-	GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error)
-	List(ctx context.Context) ([]models.Phone, *errorx.Error)
-}
-
 type PhoneRepository struct {
-	conn *gocql.Session
+	scylla *db.Scylla
 }
 
-func NewPhoneRepository(s *gocql.Session) *PhoneRepository {
+func NewPhoneRepository(s *db.Scylla) *PhoneRepository {
 	return &PhoneRepository{
-		conn: s,
+		scylla: s,
 	}
 }
 
 func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx.Error {
-	err := repo.conn.Query(`INSERT INTO phone (id, country_code, area_code, number) VALUES (uuid(),?,?,?)`,
-		strings.ToUpper(p.CountryCode),
-		strings.ToUpper(p.AreaCode),
-		strings.ToUpper(p.Number),
-	).WithContext(ctx).Exec()
+	stmt := `INSERT INTO phone (id, area_code, country_code, number) VALUES (uuid(),?,?,?)`
+	err := repo.scylla.Insert(stmt, ctx, p.CountryCode, p.AreaCode, p.Number)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -38,34 +29,49 @@ func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx
 }
 
 func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error) {
-	phone := models.Phone{}
-	err := repo.conn.Query(`SELECT id, country_code, area_code, number FROM phone WHERE id = ? LIMIT 1`,
-		p.Id).WithContext(ctx).Consistency(gocql.One).Scan(
-		&phone.Id,
-		&phone.CountryCode,
-		&phone.AreaCode,
-		&phone.Number,
-	)
+	stmt := `SELECT id, area_code, country_code, number FROM phone WHERE id = ? LIMIT 1`
+	rows := repo.scylla.GetById(stmt, ctx, p.Id)
+	scan, err := repo.scanById(rows)
 	if err != nil {
-		return nil, errorx.Decorate(err, "error during select query")
+		return nil, errorx.Decorate(err, "error during scan")
 	}
-
-	return &phone, nil
+	return scan, nil
 }
 
 func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.Error) {
-	scanner := repo.conn.Query(`SELECT id, country_code, area_code, number FROM phone`).WithContext(ctx).Iter().Scanner()
+	stmt := `SELECT * FROM phone`
+	rows := repo.scylla.List(stmt, ctx)
+	scan, err := repo.scanList(rows)
+	if err != nil {
+		return nil, errorx.Decorate(err, "error during scan")
+	}
+	return scan, nil
+}
+
+func (repo *PhoneRepository) scanById(rows *gocql.Query) (*models.Phone, error) {
+	p := models.Phone{}
+	err := rows.Scan(
+		&p.Id,
+		&p.CountryCode,
+		&p.AreaCode,
+		&p.Number,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
+func (repo *PhoneRepository) scanList(rows *gocql.Iter) ([]models.Phone, error) {
 	pList := []models.Phone{}
 	p := models.Phone{}
-	for scanner.Next() {
-		err := scanner.Scan(&p.Id, &p.CountryCode, &p.AreaCode, &p.Number)
+	scan := rows.Scanner()
+	for scan.Next() {
+		err := scan.Scan(&p.Id, &p.AreaCode, &p.CountryCode, &p.Number)
 		if err != nil {
-			return nil, errorx.Decorate(err, "error during scanner")
+			return nil, err
 		}
 		pList = append(pList, p)
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, errorx.Decorate(err, "error during select query")
 	}
 	return pList, nil
 }

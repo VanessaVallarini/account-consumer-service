@@ -2,36 +2,26 @@ package repository
 
 import (
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/db"
 	"context"
-	"strings"
 
 	"github.com/gocql/gocql"
 	"github.com/joomcode/errorx"
 )
 
-type IUserRepository interface {
-	Insert(ctx context.Context, u models.User) *errorx.Error
-	GetById(ctx context.Context, u models.UserRequestById) (*models.User, *errorx.Error)
-	List(ctx context.Context) ([]models.User, *errorx.Error)
-}
-
 type UserRepository struct {
-	conn *gocql.Session
+	scylla *db.Scylla
 }
 
-func NewUserRepository(s *gocql.Session) *UserRepository {
+func NewUserRepository(s *db.Scylla) *UserRepository {
 	return &UserRepository{
-		conn: s,
+		scylla: s,
 	}
 }
 
 func (repo *UserRepository) Insert(ctx context.Context, u models.User) *errorx.Error {
-	err := repo.conn.Query(`INSERT INTO user (id, address_id, phone_id, name, email) VALUES (uuid(),?,?,?,?)`,
-		strings.ToLower(u.AddressId),
-		strings.ToLower(u.PhoneId),
-		strings.ToUpper(u.Name),
-		strings.ToUpper(u.Email),
-	).WithContext(ctx).Exec()
+	stmt := `INSERT INTO user (id, address_id, phone_id, email, name) VALUES (uuid(),?,?,?,?)`
+	err := repo.scylla.Insert(stmt, ctx, u.AddressId, u.PhoneId, u.Email, u.Name)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -39,34 +29,50 @@ func (repo *UserRepository) Insert(ctx context.Context, u models.User) *errorx.E
 }
 
 func (repo *UserRepository) GetById(ctx context.Context, u models.UserRequestById) (*models.User, *errorx.Error) {
-	user := models.User{}
-	err := repo.conn.Query(`SELECT id, address_id, phone_id, name, email FROM user WHERE id = ? LIMIT 1`,
-		u.Id).WithContext(ctx).Consistency(gocql.One).Scan(
-		&user.Id,
-		&user.AddressId,
-		&user.PhoneId,
-		&user.Name,
-		&user.Email,
-	)
+	stmt := `SELECT id, address_id, phone_id, email, name FROM user WHERE id = ? LIMIT 1`
+	rows := repo.scylla.GetById(stmt, ctx, u.Id)
+	scan, err := repo.scanById(rows)
 	if err != nil {
-		return nil, errorx.Decorate(err, "error during select query")
+		return nil, errorx.Decorate(err, "error during scan")
 	}
-	return &user, nil
+	return scan, nil
 }
 
 func (repo *UserRepository) List(ctx context.Context) ([]models.User, *errorx.Error) {
-	scanner := repo.conn.Query(`SELECT id, address_id, phone_id, name, email FROM user`).WithContext(ctx).Iter().Scanner()
+	stmt := `SELECT * FROM user`
+	rows := repo.scylla.List(stmt, ctx)
+	scan, err := repo.scanList(rows)
+	if err != nil {
+		return nil, errorx.Decorate(err, "error during scan")
+	}
+	return scan, nil
+}
+
+func (repo *UserRepository) scanById(rows *gocql.Query) (*models.User, error) {
+	u := models.User{}
+	err := rows.Scan(
+		&u.Id,
+		&u.AddressId,
+		&u.PhoneId,
+		&u.Email,
+		&u.Name,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (repo *UserRepository) scanList(rows *gocql.Iter) ([]models.User, error) {
 	uList := []models.User{}
 	u := models.User{}
-	for scanner.Next() {
-		err := scanner.Scan(&u.Id, &u.AddressId, &u.PhoneId, &u.Name, &u.Email)
+	scan := rows.Scanner()
+	for scan.Next() {
+		err := scan.Scan(&u.Id, &u.AddressId, &u.PhoneId, &u.Email, &u.Name)
 		if err != nil {
-			return nil, errorx.Decorate(err, "error during scanner")
+			return nil, err
 		}
 		uList = append(uList, u)
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, errorx.Decorate(err, "error during select query")
 	}
 	return uList, nil
 }
