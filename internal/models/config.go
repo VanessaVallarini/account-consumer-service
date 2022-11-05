@@ -1,4 +1,4 @@
-package entities
+package models
 
 type Config struct {
 	AppName          string
@@ -8,7 +8,6 @@ type Config struct {
 	Kafka            *KafkaConfig
 }
 
-// DatabaseConfigs holds all the database connection parameters
 type DatabaseConfig struct {
 	DatabaseUser                string
 	DatabasePassword            string
@@ -22,7 +21,6 @@ type DatabaseConfig struct {
 	DatabaseClusterTimeout      int
 }
 
-// KafkaConfigs holds all the kafka connection parameters
 type KafkaConfig struct {
 	ClientId               string
 	Hosts                  []string

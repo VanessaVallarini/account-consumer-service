@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"account-consumer-service/internal/entities"
+	"account-consumer-service/internal/models"
 	"errors"
 	"time"
 
@@ -15,7 +15,7 @@ type KafkaClient struct {
 	GroupClient    sarama.ConsumerGroup
 }
 
-func NewKafkaClient(cfg *entities.KafkaConfig) (*KafkaClient, error) {
+func NewKafkaClient(cfg *models.KafkaConfig) (*KafkaClient, error) {
 	kafkaConfig, err := generateSaramaConfig(cfg)
 	if err != nil {
 		zap.S().Fatalf("Error creating kafka configuration %v", err)
@@ -41,7 +41,7 @@ func NewKafkaClient(cfg *entities.KafkaConfig) (*KafkaClient, error) {
 	return &KafkaClient{sr, kafkaClient, groupClient}, nil
 }
 
-func generateSaramaConfig(cfg *entities.KafkaConfig) (*sarama.Config, error) {
+func generateSaramaConfig(cfg *models.KafkaConfig) (*sarama.Config, error) {
 	/**
 	 * Construct a new Sarama configuration.
 	 * The Kafka cluster version has to be defined before the consumer/producer is initialized.

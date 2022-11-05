@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"account-consumer-service/internal/entities"
+	"account-consumer-service/internal/models"
 	"context"
 	"strings"
 
@@ -9,10 +9,10 @@ import (
 	"github.com/joomcode/errorx"
 )
 
-type PhoneRepositoryInterface interface {
-	Create(ctx context.Context, p entities.Phone) *errorx.Error
-	GetById(ctx context.Context, p entities.PhoneRequestById) (*entities.Phone, *errorx.Error)
-	List(ctx context.Context) ([]entities.Phone, *errorx.Error)
+type IPhoneRepository interface {
+	Insert(ctx context.Context, p models.Phone) *errorx.Error
+	GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error)
+	List(ctx context.Context) ([]models.Phone, *errorx.Error)
 }
 
 type PhoneRepository struct {
@@ -25,7 +25,7 @@ func NewPhoneRepository(s *gocql.Session) *PhoneRepository {
 	}
 }
 
-func (repo *PhoneRepository) Create(ctx context.Context, p entities.Phone) *errorx.Error {
+func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx.Error {
 	err := repo.conn.Query(`INSERT INTO phone (id, country_code, area_code, number) VALUES (uuid(),?,?,?)`,
 		strings.ToUpper(p.CountryCode),
 		strings.ToUpper(p.AreaCode),
@@ -37,8 +37,8 @@ func (repo *PhoneRepository) Create(ctx context.Context, p entities.Phone) *erro
 	return nil
 }
 
-func (repo *PhoneRepository) GetById(ctx context.Context, p entities.PhoneRequestById) (*entities.Phone, *errorx.Error) {
-	phone := entities.Phone{}
+func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error) {
+	phone := models.Phone{}
 	err := repo.conn.Query(`SELECT id, country_code, area_code, number FROM phone WHERE id = ? LIMIT 1`,
 		p.Id).WithContext(ctx).Consistency(gocql.One).Scan(
 		&phone.Id,
@@ -53,10 +53,10 @@ func (repo *PhoneRepository) GetById(ctx context.Context, p entities.PhoneReques
 	return &phone, nil
 }
 
-func (repo *PhoneRepository) List(ctx context.Context) ([]entities.Phone, *errorx.Error) {
+func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.Error) {
 	scanner := repo.conn.Query(`SELECT id, country_code, area_code, number FROM phone`).WithContext(ctx).Iter().Scanner()
-	pList := []entities.Phone{}
-	p := entities.Phone{}
+	pList := []models.Phone{}
+	p := models.Phone{}
 	for scanner.Next() {
 		err := scanner.Scan(&p.Id, &p.CountryCode, &p.AreaCode, &p.Number)
 		if err != nil {

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"account-consumer-service/internal/entities"
+	"account-consumer-service/internal/models"
 	"context"
 	"strings"
 
@@ -9,10 +9,10 @@ import (
 	"github.com/joomcode/errorx"
 )
 
-type UserRepositoryInterface interface {
-	Create(ctx context.Context, u entities.User) *errorx.Error
-	GetById(ctx context.Context, u entities.UserRequestById) (*entities.User, *errorx.Error)
-	List(ctx context.Context) ([]entities.User, *errorx.Error)
+type IUserRepository interface {
+	Insert(ctx context.Context, u models.User) *errorx.Error
+	GetById(ctx context.Context, u models.UserRequestById) (*models.User, *errorx.Error)
+	List(ctx context.Context) ([]models.User, *errorx.Error)
 }
 
 type UserRepository struct {
@@ -25,7 +25,7 @@ func NewUserRepository(s *gocql.Session) *UserRepository {
 	}
 }
 
-func (repo *UserRepository) Create(ctx context.Context, u entities.User) *errorx.Error {
+func (repo *UserRepository) Insert(ctx context.Context, u models.User) *errorx.Error {
 	err := repo.conn.Query(`INSERT INTO user (id, address_id, phone_id, name, email) VALUES (uuid(),?,?,?,?)`,
 		strings.ToLower(u.AddressId),
 		strings.ToLower(u.PhoneId),
@@ -38,8 +38,8 @@ func (repo *UserRepository) Create(ctx context.Context, u entities.User) *errorx
 	return nil
 }
 
-func (repo *UserRepository) GetById(ctx context.Context, u entities.UserRequestById) (*entities.User, *errorx.Error) {
-	user := entities.User{}
+func (repo *UserRepository) GetById(ctx context.Context, u models.UserRequestById) (*models.User, *errorx.Error) {
+	user := models.User{}
 	err := repo.conn.Query(`SELECT id, address_id, phone_id, name, email FROM user WHERE id = ? LIMIT 1`,
 		u.Id).WithContext(ctx).Consistency(gocql.One).Scan(
 		&user.Id,
@@ -54,10 +54,10 @@ func (repo *UserRepository) GetById(ctx context.Context, u entities.UserRequestB
 	return &user, nil
 }
 
-func (repo *UserRepository) List(ctx context.Context) ([]entities.User, *errorx.Error) {
+func (repo *UserRepository) List(ctx context.Context) ([]models.User, *errorx.Error) {
 	scanner := repo.conn.Query(`SELECT id, address_id, phone_id, name, email FROM user`).WithContext(ctx).Iter().Scanner()
-	uList := []entities.User{}
-	u := entities.User{}
+	uList := []models.User{}
+	u := models.User{}
 	for scanner.Next() {
 		err := scanner.Scan(&u.Id, &u.AddressId, &u.PhoneId, &u.Name, &u.Email)
 		if err != nil {

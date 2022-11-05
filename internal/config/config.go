@@ -3,16 +3,16 @@ package config
 import (
 	"fmt"
 
-	"account-consumer-service/internal/entities"
+	"account-consumer-service/internal/models"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
 
-func NewConfig() *entities.Config {
+func NewConfig() *models.Config {
 	viperConfig := initConfig()
 
-	return &entities.Config{
+	return &models.Config{
 		AppName:          viperConfig.GetString("APP_NAME"),
 		ServerHost:       viperConfig.GetString("SERVER_HOST"),
 		HealthServerHost: viperConfig.GetString("HEALTH_SERVER_HOST"),
@@ -38,8 +38,8 @@ func initConfig() *viper.Viper {
 	return config
 }
 
-func buildDatabaseConfig(viperConfig *viper.Viper) *entities.DatabaseConfig {
-	return &entities.DatabaseConfig{
+func buildDatabaseConfig(viperConfig *viper.Viper) *models.DatabaseConfig {
+	return &models.DatabaseConfig{
 		DatabaseUser:                viperConfig.GetString("DATABASE_USER"),
 		DatabasePassword:            viperConfig.GetString("DATEBASE_PASSWORD"),
 		DatabaseKeyspace:            viperConfig.GetString("DATEBASE_KEYSPACE"),
@@ -53,8 +53,8 @@ func buildDatabaseConfig(viperConfig *viper.Viper) *entities.DatabaseConfig {
 	}
 }
 
-func buildKafkaClientConfig(config *viper.Viper) *entities.KafkaConfig {
-	return &entities.KafkaConfig{
+func buildKafkaClientConfig(config *viper.Viper) *models.KafkaConfig {
+	return &models.KafkaConfig{
 		ClientId:               config.GetString("KAFKA_CLIENT_ID"),
 		Hosts:                  cast.ToStringSlice(config.GetString("KAFKA_HOSTS")),
 		SchemaRegistryHost:     config.GetString("KAFKA_SCHEMA_REGISTRY_HOST"),
