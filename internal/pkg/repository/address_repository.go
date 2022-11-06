@@ -7,6 +7,7 @@ import (
 
 	"github.com/gocql/gocql"
 	"github.com/joomcode/errorx"
+	"github.com/mitchellh/mapstructure"
 )
 
 type FormRepositoryInterface interface {
@@ -38,12 +39,28 @@ func (repo *AddressRepository) Insert(ctx context.Context, a models.Address) *er
 
 func (repo *AddressRepository) GetById(ctx context.Context, a models.AddressRequestById) (*models.Address, *errorx.Error) {
 	stmt := `SELECT id, alias, city, district, public_place, zip_code FROM address WHERE id = ? LIMIT 1`
-	rows := repo.scylla.GetById(ctx, stmt, a.Id)
-	scan, err := repo.scanById(rows)
+
+	address := &models.Address{}
+	results := map[string]interface{}{
+		"id":           &address.Id,
+		"alias":        &address.Alias,
+		"city":         &address.City,
+		"district":     &address.District,
+		"public_place": &address.PublicPlace,
+		"zip_code":     &address.ZipCode,
+	}
+
+	err := repo.scylla.ScanMap(ctx, stmt, results, a.Id)
+	if err != nil {
+		return nil, errorx.Decorate(err, "error during query")
+	}
+
+	address, err = repo.convertToAdress(results)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
 	}
-	return scan, nil
+
+	return address, nil
 }
 
 func (repo *AddressRepository) List(ctx context.Context) ([]models.Address, *errorx.Error) {
@@ -74,16 +91,9 @@ func (repo *AddressRepository) Delete(ctx context.Context, a models.AddressReque
 	return nil
 }
 
-func (repo *AddressRepository) scanById(rows *gocql.Query) (*models.Address, error) {
-	a := models.Address{}
-	err := rows.Scan(
-		&a.Id,
-		&a.Alias,
-		&a.City,
-		&a.District,
-		&a.PublicPlace,
-		&a.ZipCode,
-	)
+func (repo *AddressRepository) convertToAdress(results map[string]interface{}) (*models.Address, error) {
+	var a models.Address
+	err := mapstructure.Decode(results, &a)
 	if err != nil {
 		return nil, err
 	}

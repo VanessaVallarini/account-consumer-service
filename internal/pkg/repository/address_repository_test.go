@@ -7,6 +7,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/gocql/gocql"
 	"github.com/maraino/go-mock"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,60 +19,118 @@ func TestNewAddressRepository(t *testing.T) {
 	assert.NotNil(t, addressRepository)
 }
 
-func TestCreateAddressReturnSuccess(t *testing.T) {
-	ctx := context.Background()
-	scylla := mocks.NewScylla()
-	addressRepository := NewAddressRepository(scylla)
+func TestCreate(t *testing.T) {
+	t.Run("Expect to return success on create address", func(t *testing.T) {
+		ctx := context.Background()
+		scylla := mocks.NewScylla()
+		addressRepository := NewAddressRepository(scylla)
 
-	a := createAddressParams()
+		a := models.Address{
+			Alias:       "SP",
+			City:        "São Paulo",
+			District:    "Sé",
+			PublicPlace: "Praça da Sé",
+			ZipCode:     "01001-000",
+		}
 
-	scylla.When("Insert",
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-	).Return(
-		nil,
-	)
+		scylla.When("Insert",
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+		).Return(
+			nil,
+		)
 
-	err := addressRepository.Insert(ctx, a)
+		err := addressRepository.Insert(ctx, a)
 
-	assert.Nil(t, err)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Expect to return error during insert query", func(t *testing.T) {
+		ctx := context.Background()
+		scylla := mocks.NewScylla()
+		addressRepository := NewAddressRepository(scylla)
+
+		a := models.Address{
+			Alias:       "SP",
+			City:        "São Paulo",
+			District:    "Sé",
+			PublicPlace: "Praça da Sé",
+			ZipCode:     "01001-000",
+		}
+
+		scylla.When("Insert",
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+		).Return(
+			errors.New("error during insert query"),
+		)
+
+		err := addressRepository.Insert(ctx, a)
+
+		assert.Error(t, err)
+	})
 }
 
-func TestCreateAddressReturnError(t *testing.T) {
-	ctx := context.Background()
-	scylla := mocks.NewScylla()
-	addressRepository := NewAddressRepository(scylla)
+func TestGetById(t *testing.T) {
+	t.Run("Expect to return success on get address", func(t *testing.T) {
+		ctx := context.Background()
+		scylla := mocks.NewScylla()
+		addressRepository := NewAddressRepository(scylla)
 
-	a := createAddressParams()
+		randomUUID, _ := gocql.RandomUUID()
 
-	scylla.When("Insert",
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-		mock.Any,
-	).Return(
-		errors.New("error on querying"),
-	)
+		a := models.AddressRequestById{
+			Id: randomUUID.String(),
+		}
 
-	err := addressRepository.Insert(ctx, a)
+		scylla.When("ScanMap",
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+		).Return(
+			nil,
+		)
 
-	assert.Error(t, err)
-}
+		address, err := addressRepository.GetById(ctx, a)
 
-func createAddressParams() models.Address {
-	return models.Address{
-		Alias:       "SP",
-		City:        "São Paulo",
-		District:    "Sé",
-		PublicPlace: "Praça da Sé",
-		ZipCode:     "01001-000",
-	}
+		assert.Nil(t, err)
+		assert.NotNil(t, address)
+	})
+
+	t.Run("Expect to return error on get address", func(t *testing.T) {
+		ctx := context.Background()
+		scylla := mocks.NewScylla()
+		addressRepository := NewAddressRepository(scylla)
+
+		randomUUID, _ := gocql.RandomUUID()
+
+		a := models.AddressRequestById{
+			Id: randomUUID.String(),
+		}
+
+		scylla.When("ScanMap",
+			mock.Any,
+			mock.Any,
+			mock.Any,
+			mock.Any,
+		).Return(
+			errors.New("error during insert query"),
+		)
+
+		address, err := addressRepository.GetById(ctx, a)
+
+		assert.Error(t, err)
+		assert.Nil(t, address)
+	})
 }

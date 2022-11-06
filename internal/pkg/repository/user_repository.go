@@ -28,7 +28,7 @@ func (repo *UserRepository) Insert(ctx context.Context, u models.User) *errorx.E
 	return nil
 }
 
-func (repo *UserRepository) GetById(ctx context.Context, u models.UserRequestById) (*models.User, *errorx.Error) {
+/* func (repo *UserRepository) GetById(ctx context.Context, u models.UserRequestById) (*models.User, *errorx.Error) {
 	stmt := `SELECT id, address_id, phone_id, email, name FROM user WHERE id = ? LIMIT 1`
 	rows := repo.scylla.GetById(ctx, stmt, u.Id)
 	scan, err := repo.scanById(rows)
@@ -36,7 +36,7 @@ func (repo *UserRepository) GetById(ctx context.Context, u models.UserRequestByI
 		return nil, errorx.Decorate(err, "error during scan")
 	}
 	return scan, nil
-}
+} */
 
 func (repo *UserRepository) List(ctx context.Context) ([]models.User, *errorx.Error) {
 	stmt := `SELECT * FROM user`
@@ -64,21 +64,6 @@ func (repo *UserRepository) Delete(ctx context.Context, u models.UserRequestById
 		return errorx.Decorate(err, "error during insert query")
 	}
 	return nil
-}
-
-func (repo *UserRepository) scanById(rows *gocql.Query) (*models.User, error) {
-	u := models.User{}
-	err := rows.Scan(
-		&u.Id,
-		&u.AddressId,
-		&u.PhoneId,
-		&u.Email,
-		&u.Name,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &u, nil
 }
 
 func (repo *UserRepository) scanList(rows *gocql.Iter) ([]models.User, error) {

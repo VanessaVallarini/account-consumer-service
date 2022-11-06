@@ -11,7 +11,6 @@ import (
 
 type PhoneRepositoryInterface interface {
 	Insert(ctx context.Context, p models.Phone) *errorx.Error
-	GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error)
 	List(ctx context.Context) ([]models.Phone, *errorx.Error)
 	Update(ctx context.Context, p models.Phone) *errorx.Error
 	Delete(ctx context.Context, a models.PhoneRequestById) *errorx.Error
@@ -36,7 +35,7 @@ func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx
 	return nil
 }
 
-func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error) {
+/* func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error) {
 	stmt := `SELECT id, area_code, country_code, number FROM phone WHERE id = ? LIMIT 1`
 	rows := repo.scylla.GetById(ctx, stmt, p.Id)
 	scan, err := repo.scanById(rows)
@@ -44,7 +43,7 @@ func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestB
 		return nil, errorx.Decorate(err, "error during scan")
 	}
 	return scan, nil
-}
+} */
 
 func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.Error) {
 	stmt := `SELECT * FROM phone`
@@ -72,20 +71,6 @@ func (repo *PhoneRepository) Delete(ctx context.Context, u models.PhoneRequestBy
 		return errorx.Decorate(err, "error during insert query")
 	}
 	return nil
-}
-
-func (repo *PhoneRepository) scanById(rows *gocql.Query) (*models.Phone, error) {
-	p := models.Phone{}
-	err := rows.Scan(
-		&p.Id,
-		&p.CountryCode,
-		&p.AreaCode,
-		&p.Number,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &p, nil
 }
 
 func (repo *PhoneRepository) scanList(rows *gocql.Iter) ([]models.Phone, error) {
