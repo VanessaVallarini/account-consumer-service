@@ -18,10 +18,10 @@ type FormRepositoryInterface interface {
 }
 
 type AddressRepository struct {
-	scylla db.ScyllaConnection
+	scylla db.ScyllaInterface
 }
 
-func NewAddressRepository(s db.ScyllaConnection) *AddressRepository {
+func NewAddressRepository(s db.ScyllaInterface) *AddressRepository {
 	return &AddressRepository{
 		scylla: s,
 	}
@@ -29,7 +29,7 @@ func NewAddressRepository(s db.ScyllaConnection) *AddressRepository {
 
 func (repo *AddressRepository) Insert(ctx context.Context, a models.Address) *errorx.Error {
 	stmt := `INSERT INTO address (id, alias, city, district, public_place ,zip_code) VALUES (uuid(),?,?,?,?,?)`
-	err := repo.scylla.Insert(stmt, ctx, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode)
+	err := repo.scylla.Insert(ctx, stmt, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -38,7 +38,7 @@ func (repo *AddressRepository) Insert(ctx context.Context, a models.Address) *er
 
 func (repo *AddressRepository) GetById(ctx context.Context, a models.AddressRequestById) (*models.Address, *errorx.Error) {
 	stmt := `SELECT id, alias, city, district, public_place, zip_code FROM address WHERE id = ? LIMIT 1`
-	rows := repo.scylla.GetById(stmt, ctx, a.Id)
+	rows := repo.scylla.GetById(ctx, stmt, a.Id)
 	scan, err := repo.scanById(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
@@ -48,7 +48,7 @@ func (repo *AddressRepository) GetById(ctx context.Context, a models.AddressRequ
 
 func (repo *AddressRepository) List(ctx context.Context) ([]models.Address, *errorx.Error) {
 	stmt := `SELECT * FROM address`
-	rows := repo.scylla.List(stmt, ctx)
+	rows := repo.scylla.List(ctx, stmt)
 	scan, err := repo.scanList(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
@@ -58,7 +58,7 @@ func (repo *AddressRepository) List(ctx context.Context) ([]models.Address, *err
 
 func (repo *AddressRepository) Update(ctx context.Context, a models.Address) *errorx.Error {
 	stmt := `UPDATE address SET alias = ?, city = ?, district = ?, public_place = ?, zip_code = ? WHERE id = ?`
-	err := repo.scylla.Update(stmt, ctx, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode, a.Id)
+	err := repo.scylla.Update(ctx, stmt, a.Alias, a.City, a.District, a.PublicPlace, a.ZipCode, a.Id)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -67,7 +67,7 @@ func (repo *AddressRepository) Update(ctx context.Context, a models.Address) *er
 
 func (repo *AddressRepository) Delete(ctx context.Context, a models.AddressRequestById) *errorx.Error {
 	stmt := `DELETE from address WHERE id = ?`
-	err := repo.scylla.Delete(stmt, ctx, a.Id)
+	err := repo.scylla.Delete(ctx, stmt, a.Id)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}

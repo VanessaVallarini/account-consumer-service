@@ -18,10 +18,10 @@ type PhoneRepositoryInterface interface {
 }
 
 type PhoneRepository struct {
-	scylla *db.Scylla
+	scylla db.ScyllaInterface
 }
 
-func NewPhoneRepository(s *db.Scylla) *PhoneRepository {
+func NewPhoneRepository(s db.ScyllaInterface) *PhoneRepository {
 	return &PhoneRepository{
 		scylla: s,
 	}
@@ -29,7 +29,7 @@ func NewPhoneRepository(s *db.Scylla) *PhoneRepository {
 
 func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx.Error {
 	stmt := `INSERT INTO phone (id, area_code, country_code, number) VALUES (uuid(),?,?,?)`
-	err := repo.scylla.Insert(stmt, ctx, p.CountryCode, p.AreaCode, p.Number)
+	err := repo.scylla.Insert(ctx, stmt, p.CountryCode, p.AreaCode, p.Number)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -38,7 +38,7 @@ func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx
 
 func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error) {
 	stmt := `SELECT id, area_code, country_code, number FROM phone WHERE id = ? LIMIT 1`
-	rows := repo.scylla.GetById(stmt, ctx, p.Id)
+	rows := repo.scylla.GetById(ctx, stmt, p.Id)
 	scan, err := repo.scanById(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
@@ -48,7 +48,7 @@ func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestB
 
 func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.Error) {
 	stmt := `SELECT * FROM phone`
-	rows := repo.scylla.List(stmt, ctx)
+	rows := repo.scylla.List(ctx, stmt)
 	scan, err := repo.scanList(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
@@ -58,7 +58,7 @@ func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.
 
 func (repo *PhoneRepository) Update(ctx context.Context, p models.Phone) *errorx.Error {
 	stmt := `UPDATE phone SET area_code = ?, country_code = ?, number = ? WHERE id = ?`
-	err := repo.scylla.Update(stmt, ctx, p.AreaCode, p.CountryCode, p.Number, p.Id)
+	err := repo.scylla.Update(ctx, stmt, p.AreaCode, p.CountryCode, p.Number, p.Id)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -67,7 +67,7 @@ func (repo *PhoneRepository) Update(ctx context.Context, p models.Phone) *errorx
 
 func (repo *PhoneRepository) Delete(ctx context.Context, u models.PhoneRequestById) *errorx.Error {
 	stmt := `DELETE from phone WHERE id = ?`
-	err := repo.scylla.Delete(stmt, ctx, u.Id)
+	err := repo.scylla.Delete(ctx, stmt, u.Id)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}

@@ -10,10 +10,10 @@ import (
 )
 
 type UserRepository struct {
-	scylla *db.Scylla
+	scylla db.ScyllaInterface
 }
 
-func NewUserRepository(s *db.Scylla) *UserRepository {
+func NewUserRepository(s db.ScyllaInterface) *UserRepository {
 	return &UserRepository{
 		scylla: s,
 	}
@@ -21,7 +21,7 @@ func NewUserRepository(s *db.Scylla) *UserRepository {
 
 func (repo *UserRepository) Insert(ctx context.Context, u models.User) *errorx.Error {
 	stmt := `INSERT INTO user (id, address_id, phone_id, email, name) VALUES (uuid(),?,?,?,?)`
-	err := repo.scylla.Insert(stmt, ctx, u.AddressId, u.PhoneId, u.Email, u.Name)
+	err := repo.scylla.Insert(ctx, stmt, u.AddressId, u.PhoneId, u.Email, u.Name)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -30,7 +30,7 @@ func (repo *UserRepository) Insert(ctx context.Context, u models.User) *errorx.E
 
 func (repo *UserRepository) GetById(ctx context.Context, u models.UserRequestById) (*models.User, *errorx.Error) {
 	stmt := `SELECT id, address_id, phone_id, email, name FROM user WHERE id = ? LIMIT 1`
-	rows := repo.scylla.GetById(stmt, ctx, u.Id)
+	rows := repo.scylla.GetById(ctx, stmt, u.Id)
 	scan, err := repo.scanById(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
@@ -40,7 +40,7 @@ func (repo *UserRepository) GetById(ctx context.Context, u models.UserRequestByI
 
 func (repo *UserRepository) List(ctx context.Context) ([]models.User, *errorx.Error) {
 	stmt := `SELECT * FROM user`
-	rows := repo.scylla.List(stmt, ctx)
+	rows := repo.scylla.List(ctx, stmt)
 	scan, err := repo.scanList(rows)
 	if err != nil {
 		return nil, errorx.Decorate(err, "error during scan")
@@ -50,7 +50,7 @@ func (repo *UserRepository) List(ctx context.Context) ([]models.User, *errorx.Er
 
 func (repo *UserRepository) Update(ctx context.Context, u models.User) *errorx.Error {
 	stmt := `UPDATE user SET address_id = ?, phone_id = ?, email = ?, name = ? WHERE id = ?`
-	err := repo.scylla.Update(stmt, ctx, u.AddressId, u.PhoneId, u.Email, u.Name, u.Id)
+	err := repo.scylla.Update(ctx, stmt, u.AddressId, u.PhoneId, u.Email, u.Name, u.Id)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
@@ -59,7 +59,7 @@ func (repo *UserRepository) Update(ctx context.Context, u models.User) *errorx.E
 
 func (repo *UserRepository) Delete(ctx context.Context, u models.UserRequestById) *errorx.Error {
 	stmt := `DELETE from user WHERE id = ?`
-	err := repo.scylla.Delete(stmt, ctx, u.Id)
+	err := repo.scylla.Delete(ctx, stmt, u.Id)
 	if err != nil {
 		return errorx.Decorate(err, "error during insert query")
 	}
