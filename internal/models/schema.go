@@ -7,55 +7,60 @@ const (
 		"name":"Account",
 		"namespace":"com.account.producer",
 		"fields":[
-		   {
-			  "name":"name",
-			  "type":"string"
-		   },
-		   {
-			  "name":"email",
-			  "type":"string"
-		   },
-		   {
-			  "name":"alias",
-			  "type":"string"
-		   },
-		   {
-			  "name":"city",
-			  "type":"string"
-		   },
-		   {
-			  "name":"district",
-			  "type":"string"
-		   },
-		   {
-			  "name":"public_place",
-			  "type":"string"
-		   },
-		   {
-			  "name":"zip_code",
-			  "type":"string"
-		   },
-		   {
-			  "name":"country_code",
-			  "type":"string"
-		   },
-		   {
-			  "name":"area_code",
-			  "type":"string"
-		   },
-		   {
-			  "name":"number",
-			  "type":"string"
-		   },
-		   {
-			  "name":"command",
-			  "type":"string"
-		   }
+			{
+				"name":"id",
+				"type":"string"
+			 },
+			 {
+				"name":"name",
+				"type":"string"
+			 },
+			 {
+				"name":"email",
+				"type":"string"
+			 },
+			 {
+				"name":"alias",
+				"type":"string"
+			 },
+			 {
+				"name":"city",
+				"type":"string"
+			 },
+			 {
+				"name":"district",
+				"type":"string"
+			 },
+			 {
+				"name":"public_place",
+				"type":"string"
+			 },
+			 {
+				"name":"zip_code",
+				"type":"string"
+			 },
+			 {
+				"name":"country_code",
+				"type":"string"
+			 },
+			 {
+				"name":"area_code",
+				"type":"string"
+			 },
+			 {
+				"name":"number",
+				"type":"string"
+			 },
+			 {
+				"name":"command",
+				"type":"string"
+			 }		   
 		]
 	 }`
 )
 
 type AccountEvent struct {
+	Id          string `json:"id" avro:"id"`
 	Name        string `json:"name" avro:"name"`
 	Email       string `json:"email" avro:"email"`
 	Alias       string `json:"alias" avro:"alias"`

@@ -4,21 +4,10 @@ import (
 	"account-consumer-service/internal/config"
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/kafka"
-	"account-consumer-service/internal/service/consumer"
-	"context"
-	"fmt"
 )
 
-func Start(ctx context.Context, cfg *models.KafkaConfig) {
-	kafkaClient, _ := kafka.NewKafkaClient(cfg)
-	err := consumer.NewConsumer(ctx, cfg, kafkaClient)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func main() {
-	ctx := context.Background()
+	//ctx := context.Background()
 	config := config.NewConfig()
 
 	//scylla := db.NewScylla(config.Database)
@@ -26,6 +15,7 @@ func main() {
 	kafkaClient, _ := kafka.NewKafkaClient(config.Kafka)
 	p, _ := kafkaClient.NewProducer()
 	aCreate := models.AccountEvent{
+		Id:          "id",
 		Name:        "name",
 		Email:       "email",
 		Alias:       "alias",
@@ -40,5 +30,5 @@ func main() {
 	}
 	p.Send(aCreate, config.Kafka.ConsumerTopic, models.AccountSubject)
 
-	Start(ctx, config.Kafka)
+	//listner.Start(ctx, config.Kafka)
 }
