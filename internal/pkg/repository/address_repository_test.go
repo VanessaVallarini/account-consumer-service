@@ -4,6 +4,7 @@ import (
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/db/mocks"
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -132,5 +133,71 @@ func TestGetById(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, address)
+	})
+}
+
+func TestGetAll(t *testing.T) {
+	t.Run("Expect to return success on get all address", func(t *testing.T) {
+		ctx := context.Background()
+		scylla := mocks.NewScylla()
+		addressRepository := NewAddressRepository(scylla)
+
+		randomUUID, _ := gocql.RandomUUID()
+
+		var adList []models.AddressDbo
+		ad := models.AddressDbo{
+			Id:           randomUUID,
+			Alias:        "SP",
+			City:         "São Paulo",
+			District:     "Sé",
+			Public_place: "Praça da Sé",
+			Zip_code:     "01001-000",
+		}
+		adList = append(adList, ad)
+		ad = models.AddressDbo{
+			Id:           randomUUID,
+			Alias:        "SP",
+			City:         "São Paulo",
+			District:     "Sé",
+			Public_place: "Praça da Sé",
+			Zip_code:     "01001-000",
+		}
+		adList = append(adList, ad)
+
+		var requestAsMap []map[string]interface{}
+		marshalledRequest, _ := json.Marshal(adList)
+		json.Unmarshal(marshalledRequest, &requestAsMap)
+
+		scylla.When("ScanMapSlice",
+			mock.Any,
+			mock.Any,
+		).Return(
+			requestAsMap,
+			nil,
+		)
+
+		addressList, err := addressRepository.List(ctx)
+
+		assert.Nil(t, err)
+		assert.NotNil(t, addressList)
+	})
+
+	t.Run("Expect to return error on get all address", func(t *testing.T) {
+		ctx := context.Background()
+		scylla := mocks.NewScylla()
+		addressRepository := NewAddressRepository(scylla)
+
+		scylla.When("ScanMapSlice",
+			mock.Any,
+			mock.Any,
+		).Return(
+			nil,
+			errors.New("error during insert query"),
+		)
+
+		addressList, err := addressRepository.List(ctx)
+
+		assert.Error(t, err)
+		assert.Nil(t, addressList)
 	})
 }

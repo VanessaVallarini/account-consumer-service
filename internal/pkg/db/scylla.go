@@ -10,7 +10,7 @@ import (
 type ScyllaInterface interface {
 	Insert(ctx context.Context, stmt string, values ...interface{}) error
 	ScanMap(ctx context.Context, stmt string, results map[string]interface{}, arguments ...interface{}) error
-	List(ctx context.Context, stmt string) *gocql.Iter
+	ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error)
 	Update(ctx context.Context, stmt string, values ...interface{}) error
 	Delete(ctx context.Context, stmt string, values ...interface{}) error
 }
@@ -48,9 +48,9 @@ func (s *Scylla) ScanMap(ctx context.Context, stmt string, results map[string]in
 	return q.MapScan(results)
 }
 
-func (s *Scylla) List(ctx context.Context, stmt string) *gocql.Iter {
-	q := s.Session.Query(stmt).WithContext(ctx)
-	return q.Iter()
+func (s *Scylla) ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error) {
+	q := s.Session.Query(stmt, arguments...).WithContext(ctx)
+	return q.Iter().SliceMap()
 }
 
 func (s *Scylla) Update(ctx context.Context, stmt string, values ...interface{}) error {

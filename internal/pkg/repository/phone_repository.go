@@ -5,7 +5,6 @@ import (
 	"account-consumer-service/internal/pkg/db"
 	"context"
 
-	"github.com/gocql/gocql"
 	"github.com/joomcode/errorx"
 )
 
@@ -45,7 +44,7 @@ func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx
 	return scan, nil
 } */
 
-func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.Error) {
+/* func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.Error) {
 	stmt := `SELECT * FROM phone`
 	rows := repo.scylla.List(ctx, stmt)
 	scan, err := repo.scanList(rows)
@@ -53,7 +52,7 @@ func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.
 		return nil, errorx.Decorate(err, "error during scan")
 	}
 	return scan, nil
-}
+} */
 
 func (repo *PhoneRepository) Update(ctx context.Context, p models.Phone) *errorx.Error {
 	stmt := `UPDATE phone SET area_code = ?, country_code = ?, number = ? WHERE id = ?`
@@ -71,18 +70,4 @@ func (repo *PhoneRepository) Delete(ctx context.Context, u models.PhoneRequestBy
 		return errorx.Decorate(err, "error during insert query")
 	}
 	return nil
-}
-
-func (repo *PhoneRepository) scanList(rows *gocql.Iter) ([]models.Phone, error) {
-	pList := []models.Phone{}
-	p := models.Phone{}
-	scan := rows.Scanner()
-	for scan.Next() {
-		err := scan.Scan(&p.Id, &p.AreaCode, &p.CountryCode, &p.Number)
-		if err != nil {
-			return nil, err
-		}
-		pList = append(pList, p)
-	}
-	return pList, nil
 }

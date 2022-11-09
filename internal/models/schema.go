@@ -46,6 +46,10 @@ const (
 		   {
 			  "name":"number",
 			  "type":"string"
+		   },
+		   {
+			  "name":"command",
+			  "type":"string"
 		   }
 		]
 	 }`
@@ -62,4 +66,5 @@ type AccountEvent struct {
 	CountryCode string `json:"country_code" avro:"country_code"`
 	AreaCode    string `json:"area_code" avro:"area_code"`
 	Number      string `json:"number" avro:"number"`
+	Command     string `json:"command" avro:"command"`
 }
