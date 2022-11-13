@@ -1,9 +1,8 @@
 package config
 
 import (
-	"fmt"
-
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/utils"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
@@ -30,7 +29,7 @@ func initConfig() *viper.Viper {
 
 	err := config.ReadInConfig()
 	if err != nil {
-		fmt.Println(err, "failed to read config file")
+		utils.Logger.Fatal("failed to read config file", err)
 	}
 
 	config.AutomaticEnv()

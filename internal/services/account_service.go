@@ -1,10 +1,9 @@
 package service
 
-import (
+/* import (
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/kafka"
 	"account-consumer-service/internal/pkg/repository"
-	"account-consumer-service/internal/pkg/utils"
 	"context"
 )
 
@@ -15,9 +14,9 @@ type IAccountService interface {
 type AccountService struct {
 	producer *kafka.IProducer
 	registry repository.Registry
-}
+} */
 
-func NewAccountService(p *kafka.IProducer, r repository.Registry) *AccountService {
+/* func NewAccountService(p *kafka.IProducer, r repository.Registry) *AccountService {
 	return &AccountService{
 		producer: p,
 		registry: r,
@@ -125,3 +124,4 @@ func (as *AccountService) createPhone(ctx context.Context, ae models.AccountEven
 
 	return nil
 }
+*/

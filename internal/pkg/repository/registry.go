@@ -5,9 +5,7 @@ import (
 )
 
 type IRegistry interface {
-	AddressRepository() IAddressRepository
-	PhoneRepository() IPhoneRepository
-	UserRepository() IUserRepository
+	AccountRepository() IAccountRepository
 }
 
 type Registry struct {
@@ -18,14 +16,6 @@ func NewRegistry(scylla db.IScylla) *Registry {
 	return &Registry{scylla: scylla}
 }
 
-func (reg *Registry) AddressRepository() IAddressRepository {
-	return NewAddressRepository(reg.scylla)
-}
-
-func (reg *Registry) PhoneRepository() IPhoneRepository {
-	return NewPhoneRepository(reg.scylla)
-}
-
-func (reg *Registry) UserRepository() IUserRepository {
-	return NewUserRepository(reg.scylla)
+func (reg *Registry) AccountRepository() IAccountRepository {
+	return NewAccountRepository(reg.scylla)
 }

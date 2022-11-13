@@ -2,11 +2,11 @@ package kafka
 
 import (
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/utils"
 	"errors"
 	"time"
 
 	"github.com/Shopify/sarama"
-	"go.uber.org/zap"
 )
 
 type KafkaClient struct {
@@ -18,24 +18,24 @@ type KafkaClient struct {
 func NewKafkaClient(cfg *models.KafkaConfig) (*KafkaClient, error) {
 	kafkaConfig, err := generateSaramaConfig(cfg)
 	if err != nil {
-		zap.S().Fatalf("Error creating kafka configuration %v", err)
+		utils.Logger.Fatal("Error creating kafka configuration %v", err)
 		return nil, err
 	}
 
 	sr, err := NewSchemaRegistry(cfg.SchemaRegistryHost, cfg.SchemaRegistryUser, cfg.SchemaRegistryPassword)
 	if err != nil {
-		zap.S().Fatal(err)
+		utils.Logger.Fatal(err)
 	}
 
 	kafkaClient, err := sarama.NewClient(cfg.Hosts, kafkaConfig)
 	if err != nil {
-		zap.S().Fatalf("Error creating kafka client: %v", err)
+		utils.Logger.Fatal("Error creating kafka client: %v", err)
 		return nil, err
 	}
 
 	groupClient, err := sarama.NewConsumerGroupFromClient(cfg.ConsumerGroup, kafkaClient)
 	if err != nil {
-		zap.S().Fatalf("Error creating consumer group groupClient: %v", err)
+		utils.Logger.Fatal("Error creating consumer group groupClient: %v", err)
 	}
 
 	return &KafkaClient{sr, kafkaClient, groupClient}, nil

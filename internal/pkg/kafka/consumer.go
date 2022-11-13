@@ -1,8 +1,7 @@
-package consumer
+package kafka
 
 import (
 	"account-consumer-service/internal/models"
-	"account-consumer-service/internal/pkg/kafka"
 	"context"
 	"fmt"
 	"log"
@@ -25,11 +24,11 @@ type Consumer struct {
 	ready         chan bool
 	dlqTopic      string
 	consumerTopic string
-	sr            *kafka.SchemaRegistry
+	sr            *SchemaRegistry
 	producer      sarama.SyncProducer //usar no futuro para enviar para DLQ
 }
 
-func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *kafka.KafkaClient) error {
+func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient) error {
 	consumer := Consumer{
 		sr:            kafkaClient.SchemaRegistry,
 		ready:         make(chan bool),

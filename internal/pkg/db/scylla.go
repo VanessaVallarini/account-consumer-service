@@ -13,13 +13,14 @@ type IScylla interface {
 	ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error)
 	Update(ctx context.Context, stmt string, arguments ...interface{}) error
 	Delete(ctx context.Context, stmt string, arguments ...interface{}) error
+	Close()
 }
 
 type Scylla struct {
 	session *gocql.Session
 }
 
-func NewScylla(c *models.DatabaseConfig) *Scylla {
+func NewScylla(c *models.DatabaseConfig) (*Scylla, error) {
 	cluster := gocql.NewCluster(c.DatabaseHost)
 	cluster.Authenticator = gocql.PasswordAuthenticator{
 		Username: c.DatabaseUser,
@@ -30,12 +31,12 @@ func NewScylla(c *models.DatabaseConfig) *Scylla {
 
 	session, err := cluster.CreateSession()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	return &Scylla{
 		session: session,
-	}
+	}, nil
 }
 
 func (s *Scylla) Insert(ctx context.Context, stmt string, arguments ...interface{}) error {
@@ -61,4 +62,8 @@ func (s *Scylla) Update(ctx context.Context, stmt string, arguments ...interface
 func (s *Scylla) Delete(ctx context.Context, stmt string, arguments ...interface{}) error {
 	q := s.session.Query(stmt, arguments...).WithContext(ctx)
 	return q.Exec()
+}
+
+func (s *Scylla) Close() {
+	s.session.Close()
 }
