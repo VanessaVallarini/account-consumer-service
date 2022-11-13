@@ -12,7 +12,6 @@ type Account struct {
 	CountryCode string `json:"country_code"`
 	AreaCode    string `json:"area_code"`
 	Number      string `json:"number"`
-	Command     string `json:"command"`
 }
 
 type AccountRequestById struct {

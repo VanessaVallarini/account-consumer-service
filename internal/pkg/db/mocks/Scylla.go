@@ -24,7 +24,7 @@ func NewScylla() *Scylla {
 	return &Scylla{}
 }
 
-// Insert provides a mock function with given fields: ctx, stmt, params
+// Insert provides a mock function with given fields: ctx, stmt, arguments
 func (m *Scylla) Insert(ctx context.Context, stmt string, arguments ...interface{}) error {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, stmt)
@@ -34,7 +34,7 @@ func (m *Scylla) Insert(ctx context.Context, stmt string, arguments ...interface
 	return ret
 }
 
-// Scan implements Session.
+// ScanMap provides a mock function with given fields: ctx, stmt, results, arguments
 func (m *Scylla) ScanMap(ctx context.Context, stmt string, results map[string]interface{}, arguments ...interface{}) error {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, stmt)
@@ -44,6 +44,7 @@ func (m *Scylla) ScanMap(ctx context.Context, stmt string, results map[string]in
 	return ret
 }
 
+// ScanMapSlice provides a mock function with given fields: ctx, stmt, arguments
 func (m *Scylla) ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error) {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, stmt)
@@ -71,6 +72,7 @@ func (m *Scylla) ScanMapSlice(ctx context.Context, stmt string, arguments ...int
 	return r0, r1
 }
 
+// Update provides a mock function with given fields: ctx, stmt, arguments
 func (m *Scylla) Update(ctx context.Context, stmt string, arguments ...interface{}) error {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, stmt)
@@ -80,6 +82,7 @@ func (m *Scylla) Update(ctx context.Context, stmt string, arguments ...interface
 	return ret
 }
 
+// Delete provides a mock function with given fields: ctx, stmt, arguments
 func (m *Scylla) Delete(ctx context.Context, stmt string, arguments ...interface{}) error {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, stmt)
@@ -89,6 +92,7 @@ func (m *Scylla) Delete(ctx context.Context, stmt string, arguments ...interface
 	return ret
 }
 
+// Close provides a mock function
 func (m *Scylla) Close() {
 	m.Called()
 }

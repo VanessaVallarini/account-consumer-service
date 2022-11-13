@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"fmt"
+	"account-consumer-service/internal/pkg/utils"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -15,6 +15,7 @@ type IProducer struct {
 func (kc *KafkaClient) NewProducer() (*IProducer, error) {
 	producer, err := sarama.NewSyncProducerFromClient(kc.Client)
 	if err != nil {
+		utils.Logger.Fatal("Error creating new producer: %v", err)
 		return nil, err
 	}
 	return &IProducer{producer, kc.SchemaRegistry}, nil
@@ -23,7 +24,7 @@ func (kc *KafkaClient) NewProducer() (*IProducer, error) {
 func (ip *IProducer) Send(msg interface{}, topic, subject string) {
 	msgEncoder, err := ip.schema.Encode(msg, subject)
 	if err != nil {
-		fmt.Println(err)
+		utils.Logger.Error("Error send msg: %v", err)
 	}
 
 	m := sarama.ProducerMessage{

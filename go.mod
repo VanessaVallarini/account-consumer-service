@@ -4,7 +4,9 @@ go 1.18
 
 require (
 	github.com/Shopify/sarama v1.37.2
+	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/hamba/avro v1.6.0
+	github.com/joomcode/errorx v1.1.0
 	github.com/riferrei/srclient v0.5.4
 	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.8.0
@@ -12,7 +14,6 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eapache/go-resiliency v1.3.0 // indirect
@@ -21,6 +22,8 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-playground/locales v0.14.0 // indirect
+	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -37,6 +40,7 @@ require (
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
+	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/linkedin/goavro/v2 v2.9.7 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
@@ -64,7 +68,7 @@ require (
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7 // indirect
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.11-0.20220513221640-090b14e8501f // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -81,5 +85,4 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0
-	honnef.co/go/tools v0.3.3
 )
