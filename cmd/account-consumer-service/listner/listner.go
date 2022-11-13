@@ -3,7 +3,7 @@ package listner
 import (
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/kafka"
-	"account-consumer-service/internal/service/consumer"
+	"account-consumer-service/internal/services/consumer"
 	"context"
 	"fmt"
 )

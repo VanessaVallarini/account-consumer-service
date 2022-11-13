@@ -1,12 +1,11 @@
 package models
 
-import "github.com/gocql/gocql"
-
-type Phone struct {
-	Id          gocql.UUID `json:"id"`
-	CountryCode string     `json:"country_code"`
-	AreaCode    string     `json:"area_code"`
-	Number      string     `json:"number"`
+type PhoneDBModel struct {
+	Id          string `json:"id"`
+	AreaCode    string `json:"area_code"`
+	CountryCode string `json:"country_code"`
+	Number      string `json:"number"`
+	UserId      string `json:"user_id"`
 }
 
 type PhoneRequestById struct {

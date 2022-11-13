@@ -14,24 +14,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewAddressRepository(t *testing.T) {
+func TestNewPhoneRepository(t *testing.T) {
 	scylla := mocks.NewScylla()
-	addressRepository := NewAddressRepository(scylla)
+	phoneRepository := NewPhoneRepository(scylla)
 
-	assert.NotNil(t, addressRepository)
+	assert.NotNil(t, phoneRepository)
 }
 
-func TestCreateAddress(t *testing.T) {
-	t.Run("Expect to return success on create address", func(t *testing.T) {
+func TestCreatePhone(t *testing.T) {
+	t.Run("Expect to return success on create phone", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressDBModel{}
+		p := models.PhoneDBModel{}
 
 		scylla.When("Insert",
-			mock.Any,
-			mock.Any,
 			mock.Any,
 			mock.Any,
 			mock.Any,
@@ -42,7 +40,7 @@ func TestCreateAddress(t *testing.T) {
 			nil,
 		)
 
-		err := addressRepository.Create(ctx, a)
+		err := phoneRepository.Create(ctx, p)
 
 		assert.Nil(t, err)
 	})
@@ -50,9 +48,9 @@ func TestCreateAddress(t *testing.T) {
 	t.Run("Expect to return error during query", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressDBModel{}
+		p := models.PhoneDBModel{}
 
 		scylla.When("Insert",
 			mock.Any,
@@ -61,25 +59,23 @@ func TestCreateAddress(t *testing.T) {
 			mock.Any,
 			mock.Any,
 			mock.Any,
-			mock.Any,
-			mock.Any,
 		).Return(
-			errors.New("error during query create address"),
+			errors.New("error during query create phone"),
 		)
 
-		err := addressRepository.Create(ctx, a)
+		err := phoneRepository.Create(ctx, p)
 
 		assert.Error(t, err)
 	})
 }
 
-func TestUpdateAddress(t *testing.T) {
-	t.Run("Expect to return success on update address", func(t *testing.T) {
+func TestUpdatePhone(t *testing.T) {
+	t.Run("Expect to return success on update phone", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressDBModel{}
+		p := models.PhoneDBModel{}
 
 		scylla.When("Update",
 			mock.Any,
@@ -89,13 +85,11 @@ func TestUpdateAddress(t *testing.T) {
 			mock.Any,
 			mock.Any,
 			mock.Any,
-			mock.Any,
-			mock.Any,
 		).Return(
 			nil,
 		)
 
-		err := addressRepository.Update(ctx, a)
+		err := phoneRepository.Update(ctx, p)
 
 		assert.Nil(t, err)
 	})
@@ -103,9 +97,9 @@ func TestUpdateAddress(t *testing.T) {
 	t.Run("Expect to return error during query", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressDBModel{}
+		p := models.PhoneDBModel{}
 
 		scylla.When("Update",
 			mock.Any,
@@ -115,25 +109,23 @@ func TestUpdateAddress(t *testing.T) {
 			mock.Any,
 			mock.Any,
 			mock.Any,
-			mock.Any,
-			mock.Any,
 		).Return(
-			errors.New("error during query update address"),
+			errors.New("error during query update phone"),
 		)
 
-		err := addressRepository.Update(ctx, a)
+		err := phoneRepository.Update(ctx, p)
 
 		assert.Error(t, err)
 	})
 }
 
-func TestDeleteAddress(t *testing.T) {
-	t.Run("Expect to return success on delete address", func(t *testing.T) {
+func TestDeletePhone(t *testing.T) {
+	t.Run("Expect to return success on delete phone", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressRequestById{}
+		p := models.PhoneRequestById{}
 
 		scylla.When("Delete",
 			mock.Any,
@@ -143,7 +135,7 @@ func TestDeleteAddress(t *testing.T) {
 			nil,
 		)
 
-		err := addressRepository.Delete(ctx, a)
+		err := phoneRepository.Delete(ctx, p)
 
 		assert.Nil(t, err)
 	})
@@ -151,31 +143,31 @@ func TestDeleteAddress(t *testing.T) {
 	t.Run("Expect to return error during query", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressRequestById{}
+		p := models.PhoneRequestById{}
 
 		scylla.When("Delete",
 			mock.Any,
 			mock.Any,
 			mock.Any,
 		).Return(
-			errors.New("error during query delete address"),
+			errors.New("error during query delete phone"),
 		)
 
-		err := addressRepository.Delete(ctx, a)
+		err := phoneRepository.Delete(ctx, p)
 
 		assert.Error(t, err)
 	})
 }
 
-func TestGetByIdAddress(t *testing.T) {
-	t.Run("Expect to return success on get address", func(t *testing.T) {
+func TestGetByIdPhone(t *testing.T) {
+	t.Run("Expect to return success on get phone", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressRequestById{}
+		p := models.PhoneRequestById{}
 
 		scylla.When("ScanMap",
 			mock.Any,
@@ -186,7 +178,7 @@ func TestGetByIdAddress(t *testing.T) {
 			nil,
 		)
 
-		address, err := addressRepository.GetById(ctx, a)
+		address, err := phoneRepository.GetById(ctx, p)
 
 		assert.Nil(t, err)
 		assert.NotNil(t, address)
@@ -195,9 +187,9 @@ func TestGetByIdAddress(t *testing.T) {
 	t.Run("Expect to return error during query", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
-		a := models.AddressRequestById{}
+		p := models.PhoneRequestById{}
 
 		scylla.When("ScanMap",
 			mock.Any,
@@ -205,46 +197,43 @@ func TestGetByIdAddress(t *testing.T) {
 			mock.Any,
 			mock.Any,
 		).Return(
-			errors.New("error during query get address by id"),
+			errors.New("error during query get phone by id"),
 		)
 
-		address, err := addressRepository.GetById(ctx, a)
+		address, err := phoneRepository.GetById(ctx, p)
 
 		assert.Error(t, err)
 		assert.Nil(t, address)
 	})
 }
 
-func TestGetAllAddress(t *testing.T) {
-	t.Run("Expect to return success on get all address", func(t *testing.T) {
+func TestGetAllPhone(t *testing.T) {
+	t.Run("Expect to return success on get all phone", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
 		randomUUID, _ := gocql.RandomUUID()
-
-		var adList []models.AddressDBModel
-		ad := models.AddressDBModel{
+		var pdList []models.PhoneDBModel
+		pd := models.PhoneDBModel{
 			Id:          randomUUID.String(),
-			Alias:       "SP",
-			City:        "São Paulo",
-			District:    "Sé",
-			PublicPlace: "Praça da Sé",
-			ZipCode:     "01001-000",
+			AreaCode:    "11",
+			CountryCode: "55",
+			Number:      "964127229",
+			UserId:      randomUUID.String(),
 		}
-		adList = append(adList, ad)
-		ad = models.AddressDBModel{
+		pdList = append(pdList, pd)
+		pd = models.PhoneDBModel{
 			Id:          randomUUID.String(),
-			Alias:       "SP",
-			City:        "São Paulo",
-			District:    "Sé",
-			PublicPlace: "Praça da Sé",
-			ZipCode:     "01001-000",
+			AreaCode:    "11",
+			CountryCode: "55",
+			Number:      "964127229",
+			UserId:      randomUUID.String(),
 		}
-		adList = append(adList, ad)
+		pdList = append(pdList, pd)
 
 		var requestAsMap []map[string]interface{}
-		marshalledRequest, _ := json.Marshal(adList)
+		marshalledRequest, _ := json.Marshal(pdList)
 		json.Unmarshal(marshalledRequest, &requestAsMap)
 
 		scylla.When("ScanMapSlice",
@@ -255,28 +244,28 @@ func TestGetAllAddress(t *testing.T) {
 			nil,
 		)
 
-		addressList, err := addressRepository.List(ctx)
+		phoneList, err := phoneRepository.List(ctx)
 
 		assert.Nil(t, err)
-		assert.NotNil(t, addressList)
+		assert.NotNil(t, phoneList)
 	})
 
 	t.Run("Expect to return error during query", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
-		addressRepository := NewAddressRepository(scylla)
+		phoneRepository := NewPhoneRepository(scylla)
 
 		scylla.When("ScanMapSlice",
 			mock.Any,
 			mock.Any,
 		).Return(
 			nil,
-			errors.New("error during query get all address"),
+			errors.New("error during query get all phone"),
 		)
 
-		addressList, err := addressRepository.List(ctx)
+		phoneList, err := phoneRepository.List(ctx)
 
 		assert.Error(t, err)
-		assert.Nil(t, addressList)
+		assert.Nil(t, phoneList)
 	})
 }

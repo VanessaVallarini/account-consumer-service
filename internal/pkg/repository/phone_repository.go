@@ -3,71 +3,99 @@ package repository
 import (
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/db"
+	"account-consumer-service/internal/pkg/utils"
 	"context"
-
-	"github.com/joomcode/errorx"
+	"encoding/json"
 )
 
-type PhoneRepositoryInterface interface {
-	Insert(ctx context.Context, p models.Phone) *errorx.Error
-	List(ctx context.Context) ([]models.Phone, *errorx.Error)
-	Update(ctx context.Context, p models.Phone) *errorx.Error
-	Delete(ctx context.Context, a models.PhoneRequestById) *errorx.Error
+type IPhoneRepository interface {
+	Create(ctx context.Context, a models.PhoneDBModel) error
+	GetById(ctx context.Context, a models.PhoneRequestById) (*models.PhoneDBModel, error)
+	List(ctx context.Context) ([]models.PhoneDBModel, error)
+	Update(ctx context.Context, a models.PhoneDBModel) error
+	Delete(ctx context.Context, a models.PhoneRequestById) error
 }
 
 type PhoneRepository struct {
-	scylla db.ScyllaInterface
+	scylla db.IScylla
 }
 
-func NewPhoneRepository(s db.ScyllaInterface) *PhoneRepository {
+func NewPhoneRepository(s db.IScylla) *PhoneRepository {
 	return &PhoneRepository{
 		scylla: s,
 	}
 }
 
-func (repo *PhoneRepository) Insert(ctx context.Context, p models.Phone) *errorx.Error {
-	stmt := `INSERT INTO phone (id, area_code, country_code, number) VALUES (uuid(),?,?,?)`
-	err := repo.scylla.Insert(ctx, stmt, p.CountryCode, p.AreaCode, p.Number)
+func (repo *PhoneRepository) Create(ctx context.Context, p models.PhoneDBModel) error {
+	stmt := `INSERT INTO phone (id, area_code, country_code, number, user_id) VALUES (uuid(),?,?,?,?)`
+	err := repo.scylla.Insert(ctx, stmt, p.CountryCode, p.AreaCode, p.Number, p.UserId)
 	if err != nil {
-		return errorx.Decorate(err, "error during insert query")
+		utils.Logger.Info("error during query create phone", err)
+		return err
 	}
 	return nil
 }
 
-/* func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestById) (*models.Phone, *errorx.Error) {
+func (repo *PhoneRepository) GetById(ctx context.Context, p models.PhoneRequestById) (*models.PhoneDBModel, error) {
 	stmt := `SELECT id, area_code, country_code, number FROM phone WHERE id = ? LIMIT 1`
-	rows := repo.scylla.GetById(ctx, stmt, p.Id)
-	scan, err := repo.scanById(rows)
-	if err != nil {
-		return nil, errorx.Decorate(err, "error during scan")
-	}
-	return scan, nil
-} */
 
-/* func (repo *PhoneRepository) List(ctx context.Context) ([]models.Phone, *errorx.Error) {
+	phone := &models.PhoneDBModel{}
+	results := map[string]interface{}{
+		"id":           &phone.Id,
+		"area_code":    &phone.AreaCode,
+		"country_code": &phone.CountryCode,
+		"number":       &phone.Number,
+		"user_id":      &phone.UserId,
+	}
+
+	err := repo.scylla.ScanMap(ctx, stmt, results, p.Id)
+	if err != nil {
+		utils.Logger.Info("error during query get phone by id", err)
+		return nil, err
+	}
+
+	return phone, nil
+}
+
+func (repo *PhoneRepository) List(ctx context.Context) ([]models.PhoneDBModel, error) {
 	stmt := `SELECT * FROM phone`
-	rows := repo.scylla.List(ctx, stmt)
-	scan, err := repo.scanList(rows)
-	if err != nil {
-		return nil, errorx.Decorate(err, "error during scan")
-	}
-	return scan, nil
-} */
 
-func (repo *PhoneRepository) Update(ctx context.Context, p models.Phone) *errorx.Error {
-	stmt := `UPDATE phone SET area_code = ?, country_code = ?, number = ? WHERE id = ?`
-	err := repo.scylla.Update(ctx, stmt, p.AreaCode, p.CountryCode, p.Number, p.Id)
+	pList, err := repo.scylla.ScanMapSlice(ctx, stmt)
 	if err != nil {
-		return errorx.Decorate(err, "error during insert query")
+		utils.Logger.Info("error during query get all phone", err)
+		return nil, err
+	}
+
+	convertToPhoneList := repo.scanPhoneList(pList)
+
+	return convertToPhoneList, nil
+}
+
+func (repo *PhoneRepository) Update(ctx context.Context, p models.PhoneDBModel) error {
+	stmt := `UPDATE phone SET area_code = ?, country_code = ?, number = ?, user_id = ? WHERE id = ?`
+	err := repo.scylla.Update(ctx, stmt, p.AreaCode, p.CountryCode, p.Number, p.UserId, p.Id)
+	if err != nil {
+		utils.Logger.Info("error during query update phone", err)
+		return err
 	}
 	return nil
 }
 
-func (repo *PhoneRepository) Delete(ctx context.Context, u models.PhoneRequestById) *errorx.Error {
+func (repo *PhoneRepository) Delete(ctx context.Context, a models.PhoneRequestById) error {
 	stmt := `DELETE from phone WHERE id = ?`
-	err := repo.scylla.Delete(ctx, stmt, u.Id)
+	err := repo.scylla.Delete(ctx, stmt, a.Id)
 	if err != nil {
-		return errorx.Decorate(err, "error during insert query")
+		utils.Logger.Info("error during query delete phone", err)
+		return err
 	}
 	return nil
+}
+
+func (repo *PhoneRepository) scanPhoneList(results []map[string]interface{}) []models.PhoneDBModel {
+	var pList []models.PhoneDBModel
+
+	marshallResult, _ := json.Marshal(results)
+	json.Unmarshal(marshallResult, &pList)
+
+	return pList
 }

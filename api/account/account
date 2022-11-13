@@ -1,0 +1,53 @@
+/* package api
+
+import (
+	"account-consumer-service/internal/models"
+	service "account-consumer-service/internal/services"
+	"net/http"
+
+	"github.com/labstack/echo"
+)
+
+const (
+	ApiVersion = "v1"
+)
+
+type ResponseError struct { //vai pra pasta de comuns
+	Status int    `json:"status"`
+	Error  string `json:"error"`
+}
+
+type AccountHandler struct {
+	accountService service.IAccountService
+}
+
+func NewAccountHandler(e *echo.Echo, a service.IAccountService) *echo.Echo {
+	handler := AccountHandler{
+		accountService: a,
+	}
+	e.POST("/v1/account", handler.create())
+	return e
+}
+
+func (ah *AccountHandler) create() func(e echo.Context) error {
+	return func(c echo.Context) error {
+		var ae models.AccountEvent
+		err := c.Bind(&ae)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, ResponseError{
+				Status: http.StatusBadRequest,
+				Error:  err.Error(),
+			})
+		}
+		err = ah.accountService.Create(ae)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, ResponseError{
+				Status: http.StatusBadRequest,
+				Error:  err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusCreated, nil)
+	}
+}
+*/

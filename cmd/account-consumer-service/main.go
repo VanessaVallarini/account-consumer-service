@@ -1,34 +1,50 @@
 package main
 
 import (
+	"account-consumer-service/cmd/account-consumer-service/listner"
 	"account-consumer-service/internal/config"
-	"account-consumer-service/internal/models"
-	"account-consumer-service/internal/pkg/kafka"
+	"account-consumer-service/internal/pkg/utils"
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/labstack/echo"
 )
 
 func main() {
-	//ctx := context.Background()
+	ctx := context.Background()
+
 	config := config.NewConfig()
 
-	//scylla := db.NewScylla(config.Database)
+	go func() {
+		setupHttpServer()
+	}()
 
-	kafkaClient, _ := kafka.NewKafkaClient(config.Kafka)
-	p, _ := kafkaClient.NewProducer()
-	aCreate := models.AccountEvent{
-		Id:          "id",
-		Name:        "name",
-		Email:       "email",
-		Alias:       "alias",
-		City:        "city",
-		District:    "district",
-		PublicPlace: "public_place",
-		ZipCode:     "zip_code",
-		CountryCode: "country_code",
-		AreaCode:    "area_code",
-		Number:      "number",
-		Command:     "insert",
+	utils.Logger.Info("start application")
+
+	interrupt := make(chan os.Signal, 1) //se a appp está no ar
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+	killsignal := <-interrupt
+	switch killsignal {
+	case os.Interrupt:
+		utils.Logger.Info("got sigint signal... interrupt")
+	case syscall.SIGTERM:
+		utils.Logger.Info("got sigterm signal... interrupt")
 	}
-	p.Send(aCreate, config.Kafka.ConsumerTopic, models.AccountSubject)
 
-	//listner.Start(ctx, config.Kafka)
+	listner.Start(ctx, config.Kafka)
+
+}
+
+func setupHttpServer() *echo.Echo {
+	server := echo.New() //cria um servidor hhtp
+
+	//a := service.NewAccountService()
+	//handler.NewAccountHandler(server, a)
+
+	server.Start("0.0.0.0:8080")
+
+	return server
 }

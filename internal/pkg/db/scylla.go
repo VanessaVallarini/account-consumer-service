@@ -7,16 +7,16 @@ import (
 	"github.com/gocql/gocql"
 )
 
-type ScyllaInterface interface {
-	Insert(ctx context.Context, stmt string, values ...interface{}) error
+type IScylla interface {
+	Insert(ctx context.Context, stmt string, arguments ...interface{}) error
 	ScanMap(ctx context.Context, stmt string, results map[string]interface{}, arguments ...interface{}) error
 	ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error)
-	Update(ctx context.Context, stmt string, values ...interface{}) error
-	Delete(ctx context.Context, stmt string, values ...interface{}) error
+	Update(ctx context.Context, stmt string, arguments ...interface{}) error
+	Delete(ctx context.Context, stmt string, arguments ...interface{}) error
 }
 
 type Scylla struct {
-	Session *gocql.Session
+	session *gocql.Session
 }
 
 func NewScylla(c *models.DatabaseConfig) *Scylla {
@@ -34,31 +34,31 @@ func NewScylla(c *models.DatabaseConfig) *Scylla {
 	}
 
 	return &Scylla{
-		Session: session,
+		session: session,
 	}
 }
 
-func (s *Scylla) Insert(ctx context.Context, stmt string, values ...interface{}) error {
-	q := s.Session.Query(stmt, values...).WithContext(ctx)
+func (s *Scylla) Insert(ctx context.Context, stmt string, arguments ...interface{}) error {
+	q := s.session.Query(stmt, arguments...).WithContext(ctx)
 	return q.Exec()
 }
 
 func (s *Scylla) ScanMap(ctx context.Context, stmt string, results map[string]interface{}, arguments ...interface{}) error {
-	q := s.Session.Query(stmt, arguments...).WithContext(ctx)
+	q := s.session.Query(stmt, arguments...).WithContext(ctx)
 	return q.MapScan(results)
 }
 
 func (s *Scylla) ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error) {
-	q := s.Session.Query(stmt, arguments...).WithContext(ctx)
+	q := s.session.Query(stmt, arguments...).WithContext(ctx)
 	return q.Iter().SliceMap()
 }
 
-func (s *Scylla) Update(ctx context.Context, stmt string, values ...interface{}) error {
-	q := s.Session.Query(stmt, values...).WithContext(ctx)
+func (s *Scylla) Update(ctx context.Context, stmt string, arguments ...interface{}) error {
+	q := s.session.Query(stmt, arguments...).WithContext(ctx)
 	return q.Exec()
 }
 
-func (s *Scylla) Delete(ctx context.Context, stmt string, values ...interface{}) error {
-	q := s.Session.Query(stmt, values...).WithContext(ctx)
+func (s *Scylla) Delete(ctx context.Context, stmt string, arguments ...interface{}) error {
+	q := s.session.Query(stmt, arguments...).WithContext(ctx)
 	return q.Exec()
 }
