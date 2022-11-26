@@ -9,9 +9,7 @@ import (
 
 type IAccountRepository interface {
 	Create(ctx context.Context, a models.Account) error
-	GetById(ctx context.Context, a models.AccountRequestById) (*models.Account, error)
-	GetByEmail(ctx context.Context, u models.AccountRequestByEmail) (*models.Account, error)
-	GetByPhone(ctx context.Context, u models.AccountRequestByPhone) (*models.Account, error)
+	GetBy(ctx context.Context, a models.AccountRequestBy) (*models.Account, error)
 	List(ctx context.Context) ([]models.Account, error)
 	Update(ctx context.Context, a models.Account) error
 	Delete(ctx context.Context, a models.AccountRequestById) error
@@ -40,12 +38,12 @@ func (m *AccountRepository) Create(ctx context.Context, params models.Account) e
 	return r0
 }
 
-// GetById provides a mock function with given fields: ctx, params
-func (m *AccountRepository) GetById(ctx context.Context, params models.AccountRequestById) (*models.Account, error) {
+// GetBy provides a mock function with given fields: ctx, params
+func (m *AccountRepository) GetBy(ctx context.Context, params models.AccountRequestBy) (*models.Account, error) {
 	ret := m.Called(ctx, params)
 
 	var r0 *models.Account
-	if rf, ok := ret.Get(0).(func(context.Context, models.AccountRequestById) *models.Account); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.AccountRequestBy) *models.Account); ok {
 		r0 = rf(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
@@ -54,57 +52,7 @@ func (m *AccountRepository) GetById(ctx context.Context, params models.AccountRe
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, models.AccountRequestById) error); ok {
-		r1 = rf(ctx, params)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(error)
-		}
-	}
-
-	return r0, r1
-}
-
-// GetByEmail provides a mock function with given fields: ctx, params
-func (m *AccountRepository) GetByEmail(ctx context.Context, params models.AccountRequestByEmail) (*models.Account, error) {
-	ret := m.Called(ctx, params)
-
-	var r0 *models.Account
-	if rf, ok := ret.Get(0).(func(context.Context, models.AccountRequestByEmail) *models.Account); ok {
-		r0 = rf(ctx, params)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Account)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, models.AccountRequestByEmail) error); ok {
-		r1 = rf(ctx, params)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(error)
-		}
-	}
-
-	return r0, r1
-}
-
-// GetByPhone provides a mock function with given fields: ctx, params
-func (m *AccountRepository) GetByPhone(ctx context.Context, params models.AccountRequestByPhone) (*models.Account, error) {
-	ret := m.Called(ctx, params)
-
-	var r0 *models.Account
-	if rf, ok := ret.Get(0).(func(context.Context, models.AccountRequestByPhone) *models.Account); ok {
-		r0 = rf(ctx, params)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Account)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, models.AccountRequestByPhone) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, models.AccountRequestBy) error); ok {
 		r1 = rf(ctx, params)
 	} else {
 		if ret.Get(1) != nil {

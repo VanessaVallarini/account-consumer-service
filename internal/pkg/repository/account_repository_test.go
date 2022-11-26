@@ -15,9 +15,9 @@ import (
 
 func TestNewAccountRepository(t *testing.T) {
 	scylla := mocks.NewScylla()
-	userRepository := NewAccountRepository(scylla)
+	accountRepository := NewAccountRepository(scylla)
 
-	assert.NotNil(t, userRepository)
+	assert.NotNil(t, accountRepository)
 }
 
 func TestCreateAccount(t *testing.T) {
@@ -29,8 +29,6 @@ func TestCreateAccount(t *testing.T) {
 		a := models.Account{}
 
 		scylla.When("Insert",
-			mock.Any,
-			mock.Any,
 			mock.Any,
 			mock.Any,
 			mock.Any,
@@ -68,8 +66,6 @@ func TestCreateAccount(t *testing.T) {
 			mock.Any,
 			mock.Any,
 			mock.Any,
-			mock.Any,
-			mock.Any,
 		).Return(
 			errors.New("error during query create account"),
 		)
@@ -80,15 +76,17 @@ func TestCreateAccount(t *testing.T) {
 	})
 }
 
-func TestGetByIdAccount(t *testing.T) {
-	t.Run("Expect to return success on get account by id", func(t *testing.T) {
+func TestGetByAccount(t *testing.T) {
+	t.Run("Expect to return success on get account by", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
 		accountRepository := NewAccountRepository(scylla)
 
-		a := models.AccountRequestById{}
+		a := models.AccountRequestBy{}
 
 		scylla.When("ScanMap",
+			mock.Any,
+			mock.Any,
 			mock.Any,
 			mock.Any,
 			mock.Any,
@@ -97,88 +95,42 @@ func TestGetByIdAccount(t *testing.T) {
 			nil,
 		)
 
-		account, err := accountRepository.GetById(ctx, a)
+		account, err := accountRepository.GetBy(ctx, a)
 
 		assert.Nil(t, err)
 		assert.NotNil(t, account)
 	})
 
-	t.Run("Expect to return error during query on get account by id", func(t *testing.T) {
+	t.Run("Expect to return success during query on get account by and account not exist", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
 		accountRepository := NewAccountRepository(scylla)
 
-		a := models.AccountRequestById{}
+		a := models.AccountRequestBy{}
 
 		scylla.When("ScanMap",
 			mock.Any,
 			mock.Any,
 			mock.Any,
 			mock.Any,
+			mock.Any,
+			mock.Any,
 		).Return(
-			errors.New("error during query get user by id"),
+			errors.New("not found"),
 		)
 
-		account, err := accountRepository.GetById(ctx, a)
+		account, err := accountRepository.GetBy(ctx, a)
 
-		assert.Error(t, err)
+		assert.Nil(t, err)
 		assert.Nil(t, account)
 	})
-}
 
-func TestGetByEmailAccount(t *testing.T) {
-	t.Run("Expect to return success on get account by email", func(t *testing.T) {
+	t.Run("Expect to return error during query on get account by", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()
 		accountRepository := NewAccountRepository(scylla)
 
-		a := models.AccountRequestByEmail{}
-
-		scylla.When("ScanMap",
-			mock.Any,
-			mock.Any,
-			mock.Any,
-			mock.Any,
-		).Return(
-			nil,
-		)
-
-		account, err := accountRepository.GetByEmail(ctx, a)
-
-		assert.Nil(t, err)
-		assert.NotNil(t, account)
-	})
-
-	t.Run("Expect to return error during query on get account by email", func(t *testing.T) {
-		ctx := context.Background()
-		scylla := mocks.NewScylla()
-		accountRepository := NewAccountRepository(scylla)
-
-		a := models.AccountRequestByEmail{}
-
-		scylla.When("ScanMap",
-			mock.Any,
-			mock.Any,
-			mock.Any,
-			mock.Any,
-		).Return(
-			errors.New("error during query get user by email"),
-		)
-
-		account, err := accountRepository.GetByEmail(ctx, a)
-
-		assert.Error(t, err)
-		assert.Nil(t, account)
-	})
-}
-
-func TestGetByPhoneAccount(t *testing.T) {
-	t.Run("Expect to return success on get account by phone", func(t *testing.T) {
-		ctx := context.Background()
-		scylla := mocks.NewScylla()
-		accountRepository := NewAccountRepository(scylla)
-
-		a := models.AccountRequestByPhone{}
+		a := models.AccountRequestBy{}
 
 		scylla.When("ScanMap",
 			mock.Any,
@@ -188,34 +140,10 @@ func TestGetByPhoneAccount(t *testing.T) {
 			mock.Any,
 			mock.Any,
 		).Return(
-			nil,
+			errors.New("error during query get user by"),
 		)
 
-		account, err := accountRepository.GetByPhone(ctx, a)
-
-		assert.Nil(t, err)
-		assert.NotNil(t, account)
-	})
-
-	t.Run("Expect to return error during query on get account by phone", func(t *testing.T) {
-		ctx := context.Background()
-		scylla := mocks.NewScylla()
-		accountRepository := NewAccountRepository(scylla)
-
-		a := models.AccountRequestByPhone{}
-
-		scylla.When("ScanMap",
-			mock.Any,
-			mock.Any,
-			mock.Any,
-			mock.Any,
-			mock.Any,
-			mock.Any,
-		).Return(
-			errors.New("error during query get user by phone"),
-		)
-
-		account, err := accountRepository.GetByPhone(ctx, a)
+		account, err := accountRepository.GetBy(ctx, a)
 
 		assert.Error(t, err)
 		assert.Nil(t, account)
@@ -232,16 +160,14 @@ func TestGetAllAccount(t *testing.T) {
 		var aList []models.Account
 		a := models.Account{
 			Id:          randomUUID.String(),
-			Name:        "Lorem",
-			Email:       "lorem@email.com",
 			Alias:       "SP",
 			City:        "São Paulo",
 			District:    "Sé",
+			Email:       "lorem@email.com",
+			FullNumber:  "5511964127229",
+			Name:        "Lorem",
 			PublicPlace: "Praça da Sé",
 			ZipCode:     "01001-000",
-			CountryCode: "55",
-			AreaCode:    "11",
-			Number:      "964127229",
 		}
 		aList = append(aList, a)
 		aList = append(aList, a)
@@ -304,8 +230,6 @@ func TestUpdateAccount(t *testing.T) {
 			mock.Any,
 			mock.Any,
 			mock.Any,
-			mock.Any,
-			mock.Any,
 		).Return(
 			nil,
 		)
@@ -323,8 +247,6 @@ func TestUpdateAccount(t *testing.T) {
 		a := models.Account{}
 
 		scylla.When("Update",
-			mock.Any,
-			mock.Any,
 			mock.Any,
 			mock.Any,
 			mock.Any,

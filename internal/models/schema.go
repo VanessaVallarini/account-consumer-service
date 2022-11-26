@@ -12,14 +12,6 @@ const (
 				"type":"string"
 			 },
 			 {
-				"name":"name",
-				"type":"string"
-			 },
-			 {
-				"name":"email",
-				"type":"string"
-			 },
-			 {
 				"name":"alias",
 				"type":"string"
 			 },
@@ -32,23 +24,23 @@ const (
 				"type":"string"
 			 },
 			 {
+				"name":"email",
+				"type":"string"
+			 },
+			 {
+				"name":"full_number",
+				"type":"string"
+			 },
+			 {
+				"name":"name",
+				"type":"string"
+			 },
+			 {
 				"name":"public_place",
 				"type":"string"
 			 },
 			 {
 				"name":"zip_code",
-				"type":"string"
-			 },
-			 {
-				"name":"country_code",
-				"type":"string"
-			 },
-			 {
-				"name":"area_code",
-				"type":"string"
-			 },
-			 {
-				"name":"number",
 				"type":"string"
 			 },
 			 {
@@ -61,15 +53,13 @@ const (
 
 type AccountEvent struct {
 	Id          string `json:"id" avro:"id"`
-	Name        string `json:"name" avro:"name"`
-	Email       string `json:"email" avro:"email"`
 	Alias       string `json:"alias" avro:"alias"`
 	City        string `json:"city" avro:"city"`
 	District    string `json:"district" avro:"district"`
+	Email       string `json:"email" avro:"email"`
+	FullNumber  string `json:"full_number" avro:"full_number"`
+	Name        string `json:"name" avro:"name"`
 	PublicPlace string `json:"public_place" avro:"public_place"`
 	ZipCode     string `json:"zip_code" avro:"zip_code"`
-	CountryCode string `json:"country_code" avro:"country_code"`
-	AreaCode    string `json:"area_code" avro:"area_code"`
-	Number      string `json:"number" avro:"number"`
 	Command     string `json:"command" avro:"command"`
 }

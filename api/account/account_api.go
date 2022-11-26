@@ -1,16 +1,16 @@
 package api
 
 import (
-	services "account-consumer-service/internal/services"
+	"account-consumer-service/pkg"
 
 	"github.com/labstack/echo"
 )
 
 type AccountApi struct {
-	service services.AccountServiceProducer
+	service *pkg.AccountServiceProducer
 }
 
-func NewAccountApi(service services.AccountServiceProducer) *AccountApi {
+func NewAccountApi(service *pkg.AccountServiceProducer) *AccountApi {
 	return &AccountApi{
 		service: service,
 	}

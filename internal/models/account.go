@@ -2,28 +2,22 @@ package models
 
 type Account struct {
 	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Email       string `json:"email"`
 	Alias       string `json:"alias"`
 	City        string `json:"city"`
 	District    string `json:"district"`
+	Email       string `json:"email"`
+	FullNumber  string `json:"full_number"`
+	Name        string `json:"name"`
 	PublicPlace string `json:"public_place"`
 	ZipCode     string `json:"zip_code"`
-	CountryCode string `json:"country_code"`
-	AreaCode    string `json:"area_code"`
-	Number      string `json:"number"`
+}
+
+type AccountRequestBy struct {
+	Id         string `json:"id"`
+	Email      string `json:"email"`
+	FullNumber string `json:"full_number"`
 }
 
 type AccountRequestById struct {
-	Id string `json:"id" validate:"required"`
-}
-
-type AccountRequestByEmail struct {
-	Email string `json:"email" validate:"required"`
-}
-
-type AccountRequestByPhone struct {
-	CountryCode string `json:"country_code"`
-	AreaCode    string `json:"area_code"`
-	Number      string `json:"number"`
+	Id string `json:"id"`
 }

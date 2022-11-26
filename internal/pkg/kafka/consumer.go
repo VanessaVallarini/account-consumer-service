@@ -2,6 +2,8 @@ package kafka
 
 import (
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/services"
+	"account-consumer-service/internal/pkg/utils"
 	"context"
 	"fmt"
 	"log"
@@ -21,19 +23,21 @@ import (
 )
 
 type Consumer struct {
-	ready         chan bool
-	dlqTopic      string
-	consumerTopic string
-	sr            *SchemaRegistry
-	producer      sarama.SyncProducer //usar no futuro para enviar para DLQ
+	ready                  chan bool
+	dlqTopic               string
+	consumerTopic          string
+	sr                     *SchemaRegistry
+	producer               sarama.SyncProducer //usar no futuro para enviar para DLQ
+	accountServiceConsumer *services.AccountService
 }
 
-func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient) error {
+func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, asc *services.AccountService) error {
 	consumer := Consumer{
-		sr:            kafkaClient.SchemaRegistry,
-		ready:         make(chan bool),
-		dlqTopic:      cfg.DlqTopic,
-		consumerTopic: cfg.ConsumerTopic,
+		sr:                     kafkaClient.SchemaRegistry,
+		ready:                  make(chan bool),
+		dlqTopic:               cfg.DlqTopic,
+		consumerTopic:          cfg.ConsumerTopic,
+		accountServiceConsumer: asc,
 	}
 
 	wg := &sync.WaitGroup{} //tratar erros em go rotinas de forma concorrente
@@ -103,9 +107,13 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 		select {
 		case message := <-claim.Messages():
 			var ac models.AccountEvent
-			if err := consumer.sr.Decode(message.Value, &ac, models.AccountSubject); err != nil {
-				fmt.Println(err)
+			err := consumer.sr.Decode(message.Value, &ac, models.AccountSubject)
+			ctx := context.Background()
+			consumer.accountServiceConsumer.CreateAccount(ctx, ac)
+			if err != nil {
+				utils.Logger.Warn("error during decode message consumer kafka")
 			}
+			fmt.Println(err)
 			fmt.Println(ac)
 			session.MarkMessage(message, "")
 		case <-session.Context().Done():
