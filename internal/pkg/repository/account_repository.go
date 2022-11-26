@@ -34,7 +34,7 @@ func (repo *AccountRepository) Create(ctx context.Context, a models.Account) err
 				(uuid(), ?, ?, ?, ?, ?, ?, ?, ?);`
 	err := repo.scylla.Insert(ctx, stmt, a.Alias, a.City, a.District, a.Email, a.FullNumber, a.Name, a.PublicPlace, a.ZipCode)
 	if err != nil {
-		utils.Logger.Info("error during query create account", err)
+		utils.Logger.Error("error during query create account", err)
 		return err
 	}
 	return nil
@@ -65,7 +65,7 @@ func (repo *AccountRepository) GetBy(ctx context.Context, a models.AccountReques
 		if strings.Contains(err.Error(), "not found") {
 			return nil, nil
 		}
-		utils.Logger.Info("error during query get account by", err)
+		utils.Logger.Error("error during query get account by", err)
 		return nil, err
 	}
 
@@ -77,7 +77,7 @@ func (repo *AccountRepository) List(ctx context.Context) ([]models.Account, erro
 
 	uList, err := repo.scylla.ScanMapSlice(ctx, stmt)
 	if err != nil {
-		utils.Logger.Info("error during query get all account", err)
+		utils.Logger.Error("error during query get all account", err)
 		return nil, err
 	}
 
@@ -92,7 +92,7 @@ func (repo *AccountRepository) Update(ctx context.Context, a models.Account) err
 		     WHERE id = ?`
 	err := repo.scylla.Update(ctx, stmt, a.Alias, a.City, a.District, a.Email, a.FullNumber, a.Name, a.PublicPlace, a.ZipCode, a.Id)
 	if err != nil {
-		utils.Logger.Info("error during query update account", err)
+		utils.Logger.Error("error during query update account", err)
 		return err
 	}
 	return nil
@@ -102,7 +102,7 @@ func (repo *AccountRepository) Delete(ctx context.Context, a models.AccountReque
 	stmt := `DELETE from account WHERE id = ?`
 	err := repo.scylla.Delete(ctx, stmt, a.Id)
 	if err != nil {
-		utils.Logger.Info("error during query delete account", err)
+		utils.Logger.Error("error during query delete account", err)
 		return err
 	}
 	return nil

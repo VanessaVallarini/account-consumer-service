@@ -1,6 +1,6 @@
 APP_NAME: "account-consumer-service"
-SERVER_HOST: "0.0.0.0:8080"
-HEALTH_SERVER_HOST: "0.0.0.0:8081"
+SERVER_HOST: "0.0.0.0:1000"
+HEALTH_SERVER_HOST: "0.0.0.0:1001"
 
 DATABASE_USER: "cassandra"
 DATEBASE_PASSWORD: "cassandra"

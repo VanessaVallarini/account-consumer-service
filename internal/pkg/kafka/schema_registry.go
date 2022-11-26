@@ -38,10 +38,10 @@ func (sr *SchemaRegistry) ValidateSchema(rawSchema, subject string, schemaType s
 		return err
 	}
 
-	_, err = sr.CreateSchema(subject, rawSchema, srclient.SchemaType(schemaType))
+	/* _, err = sr.CreateSchema(subject, rawSchema, srclient.SchemaType(schemaType))
 	if err != nil {
 		return err
-	}
+	} */
 
 	return nil
 }

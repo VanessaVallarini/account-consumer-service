@@ -140,7 +140,7 @@ func TestGetByAccount(t *testing.T) {
 			mock.Any,
 			mock.Any,
 		).Return(
-			errors.New("error during query get user by"),
+			errors.New("error during query get account by"),
 		)
 
 		account, err := accountRepository.GetBy(ctx, a)
@@ -268,7 +268,7 @@ func TestUpdateAccount(t *testing.T) {
 	})
 }
 
-func TestDeleteUser(t *testing.T) {
+func TestDeleteAccount(t *testing.T) {
 	t.Run("Expect to return success on delete account", func(t *testing.T) {
 		ctx := context.Background()
 		scylla := mocks.NewScylla()

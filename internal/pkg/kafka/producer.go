@@ -15,7 +15,6 @@ type IProducer struct {
 func (kc *KafkaClient) NewProducer() (*IProducer, error) {
 	producer, err := sarama.NewSyncProducerFromClient(kc.Client)
 	if err != nil {
-		utils.Logger.Fatal("Error creating new producer: %v", err)
 		return nil, err
 	}
 	return &IProducer{producer, kc.SchemaRegistry}, nil
