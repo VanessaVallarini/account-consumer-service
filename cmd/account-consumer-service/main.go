@@ -49,11 +49,11 @@ func main() {
 		setupHttpServer(accountServiceProducer, config)
 	}()
 
-	go listner.Start(ctx, config.Kafka, accountServiceConsumer)
-
 	utils.Logger.Info("start application")
 
 	health.NewHealthServer()
+
+	listner.Start(ctx, config.Kafka, accountServiceConsumer, kafkaClient)
 
 }
 
