@@ -52,7 +52,7 @@ func (as *AccountService) CreateAccount(ctx context.Context, ae models.AccountEv
 
 func (as *AccountService) shouldCreateAccount(ctx context.Context, ae models.AccountEvent) (bool, error) {
 	accountRequestBy := models.AccountRequestBy{
-		Id:         "",
+		Id:         ae.Id,
 		Email:      ae.Email,
 		FullNumber: ae.FullNumber,
 	}

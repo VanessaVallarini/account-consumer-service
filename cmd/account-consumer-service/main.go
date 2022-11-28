@@ -7,6 +7,7 @@ import (
 	"account-consumer-service/cmd/account-consumer-service/server"
 	"account-consumer-service/internal/config"
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/clients"
 	"account-consumer-service/internal/pkg/db"
 	"account-consumer-service/internal/pkg/kafka"
 	"account-consumer-service/internal/pkg/repository"
@@ -43,7 +44,12 @@ func main() {
 		utils.Logger.Warn("error during kafka producer")
 	}
 
-	accountServiceProducer := pkg.NewAccountServiceProducer(*kafkaProducer)
+	viaCepApiClient, err := clients.NewViaCepApiClient(config.ViaCep)
+	if err != nil {
+		utils.Logger.Warn("error during kafka producer")
+	}
+
+	accountServiceProducer := pkg.NewAccountServiceProducer(*kafkaProducer, *viaCepApiClient)
 
 	go func() {
 		setupHttpServer(accountServiceProducer, config)

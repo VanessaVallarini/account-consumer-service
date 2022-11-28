@@ -12,6 +12,13 @@ type Account struct {
 	ZipCode     string `json:"zip_code"`
 }
 
+type AccountCreateRequest struct {
+	Email      string `json:"email"`
+	FullNumber string `json:"full_number"`
+	Name       string `json:"name"`
+	ZipCode    string `json:"zip_code"`
+}
+
 type AccountRequestBy struct {
 	Id         string `json:"id"`
 	Email      string `json:"email"`

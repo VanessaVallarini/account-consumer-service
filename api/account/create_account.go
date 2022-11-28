@@ -12,7 +12,7 @@ import (
 
 func (api *AccountApi) createAccount(echoContext echo.Context) error {
 	ctx := echoContext.Request().Context()
-	req := models.Account{}
+	req := models.AccountCreateRequest{}
 	validate := validator.New()
 
 	err := echoContext.Bind(&req)
