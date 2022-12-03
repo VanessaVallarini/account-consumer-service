@@ -43,7 +43,7 @@ func (repo *AccountRepository) Create(ctx context.Context, a models.Account) err
 func (repo *AccountRepository) GetBy(ctx context.Context, a models.AccountRequestBy) (*models.Account, error) {
 	stmt := `SELECT id, alias, city, district, email, full_number, name, public_place, zip_code 
 			 	FROM account 
-			 WHERE 
+			 WHERE
 				id = ?
 				OR email = ?
 				OR full_number = ?

@@ -51,6 +51,8 @@ func main() {
 
 	accountServiceProducer := pkg.NewAccountServiceProducer(*kafkaProducer, *viaCepApiClient)
 
+	go listner.Start(ctx, config.Kafka, accountServiceConsumer, kafkaClient)
+
 	go func() {
 		setupHttpServer(accountServiceProducer, config)
 	}()
@@ -58,9 +60,6 @@ func main() {
 	utils.Logger.Info("start application")
 
 	health.NewHealthServer()
-
-	listner.Start(ctx, config.Kafka, accountServiceConsumer, kafkaClient)
-
 }
 
 func setupHttpServer(asp *pkg.AccountServiceProducer, config *models.Config) *echo.Echo {
