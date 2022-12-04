@@ -40,6 +40,10 @@ type AccountRequestByEmail struct {
 	Email string `json:"email"`
 }
 
+type AccountRequestByFullNumber struct {
+	FullNumber string `json:"full_number"`
+}
+
 type AccountRequestById struct {
 	Id string `json:"id"`
 }

@@ -35,6 +35,16 @@ func (as *AccountService) CreateAccount(ctx context.Context, ae models.AccountCr
 	}
 	fmt.Println(abe)
 
+	accountGetByFullNumber := models.AccountRequestByFullNumber{
+		FullNumber: ae.FullNumber,
+	}
+	abfn, err := as.getAccountByFullNumber(ctx, accountGetByFullNumber)
+	if err != nil {
+		utils.Logger.Error("error during create account", err)
+		return err
+	}
+	fmt.Println(abfn)
+
 	accountCreate := models.AccountCreate{
 		Alias:       ae.Alias,
 		City:        ae.City,
@@ -59,6 +69,16 @@ func (as *AccountService) getAccountByEmail(ctx context.Context, ae models.Accou
 	account, err := as.repository.GetByEmail(ctx, ae)
 	if err != nil {
 		utils.Logger.Error("error during get account by email", err)
+		return nil, err
+	}
+
+	return account, nil
+}
+
+func (as *AccountService) getAccountByFullNumber(ctx context.Context, ae models.AccountRequestByFullNumber) (*models.Account, error) {
+	account, err := as.repository.GetByFullNumber(ctx, ae)
+	if err != nil {
+		utils.Logger.Error("error during get account by full number", err)
 		return nil, err
 	}
 
