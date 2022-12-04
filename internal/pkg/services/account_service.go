@@ -5,10 +5,12 @@ import (
 	"account-consumer-service/internal/pkg/repository"
 	"account-consumer-service/internal/pkg/utils"
 	"context"
+	"fmt"
 )
 
 type IAccountService interface {
 	CreateAccount(ctx context.Context, ae models.AccountCreateEvent) error
+	GetAccountByEmail(ctx context.Context, ae models.AccountRequestByEmail) (*models.Account, error)
 }
 
 type AccountService struct {
@@ -22,6 +24,17 @@ func NewAccountService(repo repository.IAccountRepository) *AccountService {
 }
 
 func (as *AccountService) CreateAccount(ctx context.Context, ae models.AccountCreateEvent) error {
+
+	accountGetByEmail := models.AccountRequestByEmail{
+		Email: ae.Email,
+	}
+	abe, err := as.getAccountByEmail(ctx, accountGetByEmail)
+	if err != nil {
+		utils.Logger.Error("error during create account", err)
+		return err
+	}
+	fmt.Println(abe)
+
 	accountCreate := models.AccountCreate{
 		Alias:       ae.Alias,
 		City:        ae.City,
@@ -33,11 +46,21 @@ func (as *AccountService) CreateAccount(ctx context.Context, ae models.AccountCr
 		ZipCode:     ae.ZipCode,
 	}
 
-	err := as.repository.Create(ctx, accountCreate)
+	err = as.repository.Create(ctx, accountCreate)
 	if err != nil {
 		utils.Logger.Error("error during create account", err)
 		return err
 	}
 
 	return nil
+}
+
+func (as *AccountService) getAccountByEmail(ctx context.Context, ae models.AccountRequestByEmail) (*models.Account, error) {
+	account, err := as.repository.GetByEmail(ctx, ae)
+	if err != nil {
+		utils.Logger.Error("error during get account by email", err)
+		return nil, err
+	}
+
+	return account, nil
 }

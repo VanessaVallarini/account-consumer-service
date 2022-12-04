@@ -11,6 +11,7 @@ import (
 
 type IAccountRepository interface {
 	Create(ctx context.Context, a models.AccountCreate) error
+	GetByEmail(ctx context.Context, a models.AccountRequestByEmail) (*models.Account, error)
 	GetBy(ctx context.Context, a models.AccountRequestBy) (*models.Account, error)
 	List(ctx context.Context) ([]models.Account, error)
 	Update(ctx context.Context, a models.Account) error
@@ -38,6 +39,32 @@ func (repo *AccountRepository) Create(ctx context.Context, a models.AccountCreat
 		return err
 	}
 	return nil
+}
+
+func (repo *AccountRepository) GetByEmail(ctx context.Context, a models.AccountRequestByEmail) (*models.Account, error) {
+	stmt := `SELECT * FROM account WHERE email = ? LIMIT 1`
+	account := &models.Account{}
+	results := map[string]interface{}{
+		"id":           &account.Id,
+		"email":        &account.Email,
+		"full_number":  &account.FullNumber,
+		"alias":        &account.Alias,
+		"city":         &account.City,
+		"district":     &account.City,
+		"name":         &account.Name,
+		"public_place": &account.PublicPlace,
+		"zip_code":     &account.ZipCode,
+	}
+	err := repo.scylla.ScanMap(ctx, stmt, results, a.Email)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, nil
+		}
+		utils.Logger.Error("error during query get account by", err)
+		return nil, err
+	}
+
+	return account, nil
 }
 
 func (repo *AccountRepository) GetBy(ctx context.Context, a models.AccountRequestBy) (*models.Account, error) {
