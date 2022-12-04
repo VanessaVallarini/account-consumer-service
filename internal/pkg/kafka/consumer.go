@@ -132,7 +132,6 @@ func (consumer *Consumer) accountCreate(topic string, message *sarama.ConsumerMe
 	}
 
 	if err := consumer.accountServiceConsumer.CreateAccount(ctx, ac); err != nil {
-		utils.Logger.Error("error during create account")
 		consumer.sendToDlq(ctx, dlqTopicCreateAccount, message)
 	}
 }
