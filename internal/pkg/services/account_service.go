@@ -10,7 +10,6 @@ import (
 
 type IAccountService interface {
 	CreateAccount(ctx context.Context, ae models.AccountCreateEvent) error
-	GetAccountByEmail(ctx context.Context, ae models.AccountRequestByEmail) (*models.Account, error)
 }
 
 type AccountService struct {

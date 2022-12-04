@@ -13,3 +13,6 @@ CREATE TABLE account_consumer_service.account
 	,full_number text
 	,PRIMARY KEY(id)
 );
+
+CREATE INDEX ON account_consumer_service.account(email);
+CREATE INDEX ON account_consumer_service.account(full_number);
