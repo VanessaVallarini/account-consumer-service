@@ -28,7 +28,7 @@ func NewAccountRepository(s db.IScylla) *AccountRepository {
 }
 
 func (repo *AccountRepository) Create(ctx context.Context, a models.AccountCreate) error {
-	stmt := `INSERT INTO account_consumer_service.account 
+	stmt := `INSERT INTO account 
 				(id, alias, city, district, email, full_number, name, public_place, zip_code)
 			VALUES
 				(uuid(), ?, ?, ?, ?, ?, ?, ?, ?);`

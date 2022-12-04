@@ -5,7 +5,6 @@ import (
 	"account-consumer-service/internal/pkg/services"
 	"account-consumer-service/internal/pkg/utils"
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -21,6 +20,8 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
 )
+
+const dlqTopicCreateAccount = "ccount_create_dlq"
 
 type Consumer struct {
 	ready                  chan bool
@@ -106,17 +107,33 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 	for {
 		select {
 		case message := <-claim.Messages():
-			var ac models.AccountCreateEvent
-			if err := consumer.sr.Decode(message.Value, &ac, models.AccountCreateSubject); err != nil {
-				utils.Logger.Warn("error during decode message consumer kafka")
-			}
-			ctx := context.Background()
-			consumer.accountServiceConsumer.CreateAccount(ctx, ac)
-			fmt.Println(ac)
+			consumer.sendTo(claim.Topic(), message)
 			session.MarkMessage(message, "")
 		case <-session.Context().Done():
 			return nil
 		}
+	}
+}
+
+func (consumer *Consumer) sendTo(topic string, message *sarama.ConsumerMessage) {
+	switch topic {
+	case "account_create":
+		consumer.accountCreate(topic, message)
+	}
+}
+
+func (consumer *Consumer) accountCreate(topic string, message *sarama.ConsumerMessage) {
+	ctx := context.Background()
+	var ac models.AccountCreateEvent
+
+	if err := consumer.sr.Decode(message.Value, &ac, models.AccountCreateSubject); err != nil {
+		utils.Logger.Error("error during decode message consumer kafka")
+		consumer.sendToDlq(ctx, dlqTopicCreateAccount, message)
+	}
+
+	if err := consumer.accountServiceConsumer.CreateAccount(ctx, ac); err != nil {
+		utils.Logger.Error("error during create account")
+		consumer.sendToDlq(ctx, dlqTopicCreateAccount, message)
 	}
 }
 
