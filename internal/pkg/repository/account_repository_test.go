@@ -26,7 +26,7 @@ func TestCreateAccount(t *testing.T) {
 		scylla := mocks.NewScylla()
 		accountRepository := NewAccountRepository(scylla)
 
-		a := models.Account{}
+		a := models.AccountCreate{}
 
 		scylla.When("Insert",
 			mock.Any,
@@ -53,7 +53,7 @@ func TestCreateAccount(t *testing.T) {
 		scylla := mocks.NewScylla()
 		accountRepository := NewAccountRepository(scylla)
 
-		a := models.Account{}
+		a := models.AccountCreate{}
 
 		scylla.When("Insert",
 			mock.Any,

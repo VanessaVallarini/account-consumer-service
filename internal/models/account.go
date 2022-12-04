@@ -1,5 +1,16 @@
 package models
 
+type AccountCreate struct {
+	Alias       string `json:"alias"`
+	City        string `json:"city"`
+	District    string `json:"district"`
+	Email       string `json:"email"`
+	FullNumber  string `json:"full_number"`
+	Name        string `json:"name"`
+	PublicPlace string `json:"public_place"`
+	ZipCode     string `json:"zip_code"`
+}
+
 type Account struct {
 	Id          string `json:"id"`
 	Alias       string `json:"alias"`

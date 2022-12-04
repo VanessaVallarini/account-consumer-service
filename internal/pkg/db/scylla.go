@@ -28,6 +28,7 @@ func NewScylla(c *models.DatabaseConfig) (*Scylla, error) {
 	}
 	cluster.Keyspace = c.DatabaseKeyspace
 	cluster.ConnectTimeout = cluster.ConnectTimeout * 5
+	cluster.ProtoVersion = 3
 
 	session, err := cluster.CreateSession()
 	if err != nil {

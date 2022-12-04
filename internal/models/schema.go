@@ -1,16 +1,12 @@
 package models
 
 const (
-	AccountSubject = "com.account.producer"
-	AccountAvro    = `{
+	AccountCreateSubject = "com.account.create"
+	AccountCreateAvro    = `{
 		"type":"record",
-		"name":"Account",
-		"namespace":"com.account.producer",
+		"name":"Account_Create",
+		"namespace":"com.account.create",
 		"fields":[
-			{
-				"name":"id",
-				"type":"string"
-			 },
 			 {
 				"name":"alias",
 				"type":"string"
@@ -42,17 +38,12 @@ const (
 			 {
 				"name":"zip_code",
 				"type":"string"
-			 },
-			 {
-				"name":"command",
-				"type":"string"
 			 }		   
 		]
 	 }`
 )
 
-type AccountEvent struct {
-	Id          string `json:"id" avro:"id"`
+type AccountCreateEvent struct {
 	Alias       string `json:"alias" avro:"alias"`
 	City        string `json:"city" avro:"city"`
 	District    string `json:"district" avro:"district"`
@@ -61,5 +52,4 @@ type AccountEvent struct {
 	Name        string `json:"name" avro:"name"`
 	PublicPlace string `json:"public_place" avro:"public_place"`
 	ZipCode     string `json:"zip_code" avro:"zip_code"`
-	Command     string `json:"command" avro:"command"`
 }

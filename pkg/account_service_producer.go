@@ -8,7 +8,7 @@ import (
 	"context"
 )
 
-const topic = "account"
+const topic = "account_create"
 
 type IAccountServiceProducer interface {
 	Create(ctx context.Context, ae models.AccountCreateRequest) error
@@ -38,7 +38,7 @@ func (asp *AccountServiceProducer) Create(ctx context.Context, ae models.Account
 		return err
 	}
 
-	aCreate := models.AccountEvent{
+	aCreate := models.AccountCreateEvent{
 		Alias:       viaCepResponse.Uf,
 		City:        viaCepResponse.Localidade,
 		District:    viaCepResponse.Bairro,
@@ -47,9 +47,8 @@ func (asp *AccountServiceProducer) Create(ctx context.Context, ae models.Account
 		Name:        ae.Name,
 		PublicPlace: viaCepResponse.Logradouro,
 		ZipCode:     ae.ZipCode,
-		Command:     models.Create.String(),
 	}
 
-	asp.producer.Send(aCreate, topic, models.AccountSubject)
+	asp.producer.Send(aCreate, topic, models.AccountCreateSubject)
 	return nil
 }

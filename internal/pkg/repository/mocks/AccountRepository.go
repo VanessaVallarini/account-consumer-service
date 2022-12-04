@@ -8,7 +8,7 @@ import (
 )
 
 type IAccountRepository interface {
-	Create(ctx context.Context, a models.Account) error
+	Create(ctx context.Context, a models.AccountCreate) error
 	GetBy(ctx context.Context, a models.AccountRequestBy) (*models.Account, error)
 	List(ctx context.Context) ([]models.Account, error)
 	Update(ctx context.Context, a models.Account) error
@@ -25,11 +25,11 @@ func NewAccountRepository() *AccountRepository {
 }
 
 // Create provides a mock function with given fields: ctx, params
-func (m *AccountRepository) Create(ctx context.Context, params models.Account) error {
+func (m *AccountRepository) Create(ctx context.Context, params models.AccountCreate) error {
 	ret := m.Called(ctx, params)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.Account) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.AccountCreate) error); ok {
 		r0 = rf(ctx, params)
 	} else {
 		r0 = ret.Error(0)

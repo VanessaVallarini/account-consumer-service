@@ -28,8 +28,8 @@ KAFKA_SCHEMA_REGISTRY_PASSWORD: ""
 KAFKA_ENABLE_EVENTS: true
 KAFKA_MAX_MESSAGE_BYTES: 0
 KAFKA_RETRY_MAX: 0
-KAFKA_DLQ_TOPIC: "account_dlq"
-KAFKA_CONSUMER_TOPIC: "account"
+KAFKA_DLQ_TOPIC: "ccount_create_dlq"
+KAFKA_CONSUMER_TOPIC: "account_create"
 KAFKA_CONSUMER_GROUP: "account-consumer-service"
 
 VIA_CEP_URL: "https://viacep.com.br/ws/"

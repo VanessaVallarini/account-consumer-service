@@ -106,8 +106,8 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 	for {
 		select {
 		case message := <-claim.Messages():
-			var ac models.AccountEvent
-			if err := consumer.sr.Decode(message.Value, &ac, models.AccountSubject); err != nil {
+			var ac models.AccountCreateEvent
+			if err := consumer.sr.Decode(message.Value, &ac, models.AccountCreateSubject); err != nil {
 				utils.Logger.Warn("error during decode message consumer kafka")
 			}
 			ctx := context.Background()

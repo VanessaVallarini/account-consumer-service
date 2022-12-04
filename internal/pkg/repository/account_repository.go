@@ -10,7 +10,7 @@ import (
 )
 
 type IAccountRepository interface {
-	Create(ctx context.Context, a models.Account) error
+	Create(ctx context.Context, a models.AccountCreate) error
 	GetBy(ctx context.Context, a models.AccountRequestBy) (*models.Account, error)
 	List(ctx context.Context) ([]models.Account, error)
 	Update(ctx context.Context, a models.Account) error
@@ -27,8 +27,8 @@ func NewAccountRepository(s db.IScylla) *AccountRepository {
 	}
 }
 
-func (repo *AccountRepository) Create(ctx context.Context, a models.Account) error {
-	stmt := `INSERT INTO account 
+func (repo *AccountRepository) Create(ctx context.Context, a models.AccountCreate) error {
+	stmt := `INSERT INTO account_consumer_service.account 
 				(id, alias, city, district, email, full_number, name, public_place, zip_code)
 			VALUES
 				(uuid(), ?, ?, ?, ?, ?, ?, ?, ?);`
@@ -41,26 +41,20 @@ func (repo *AccountRepository) Create(ctx context.Context, a models.Account) err
 }
 
 func (repo *AccountRepository) GetBy(ctx context.Context, a models.AccountRequestBy) (*models.Account, error) {
-	stmt := `SELECT id, alias, city, district, email, full_number, name, public_place, zip_code 
-			 	FROM account 
-			 WHERE
-				id = ?
-				OR email = ?
-				OR full_number = ?
-				LIMIT 1`
+	stmt := `SELECT * FROM account WHERE email = ? LIMIT 1`
 	account := &models.Account{}
 	results := map[string]interface{}{
 		"id":           &account.Id,
+		"email":        &account.Email,
+		"full_number":  &account.FullNumber,
 		"alias":        &account.Alias,
 		"city":         &account.City,
 		"district":     &account.City,
-		"email":        &account.Email,
-		"full_number":  &account.FullNumber,
 		"name":         &account.Name,
 		"public_place": &account.PublicPlace,
 		"zip_code":     &account.ZipCode,
 	}
-	err := repo.scylla.ScanMap(ctx, stmt, results, a.Id, a.Email, a.FullNumber)
+	err := repo.scylla.ScanMap(ctx, stmt, results, a.Email)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return nil, nil
