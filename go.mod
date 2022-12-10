@@ -79,7 +79,6 @@ require (
 	github.com/gocql/gocql v1.2.1
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/maraino/go-mock v0.0.0-20180321183845-4c74c434cd3a
-	github.com/sony/gobreaker v0.5.0
 	github.com/spf13/viper v1.13.0
 	github.com/xdg/scram v1.0.5
 	go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama v0.36.4

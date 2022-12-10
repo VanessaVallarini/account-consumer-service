@@ -6,7 +6,6 @@ type Config struct {
 	HealthServerHost string
 	Database         *DatabaseConfig
 	Kafka            *KafkaConfig
-	ViaCep           *ViaCepConfig
 }
 
 type DatabaseConfig struct {
@@ -41,11 +40,4 @@ type KafkaConfig struct {
 	DlqTopic               string
 	ConsumerTopic          string
 	ConsumerGroup          string
-}
-
-type ViaCepConfig struct {
-	Url                   string
-	MaxRetriesHttpRequest int
-	MaxFailureRatio       float64
-	Name                  string
 }

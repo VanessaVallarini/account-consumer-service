@@ -43,7 +43,7 @@ func (repo *AccountRepository) Create(ctx context.Context, a models.AccountCreat
 }
 
 func (repo *AccountRepository) GetByEmail(ctx context.Context, a models.AccountRequestByEmail) (*models.Account, error) {
-	stmt := `SELECT * FROM account WHERE email = ? LIMIT 1`
+	stmt := `SELECT * FROM account WHERE email = ? and full_number = ? LIMIT 1`
 	account := &models.Account{}
 	results := map[string]interface{}{
 		"id":           &account.Id,
@@ -56,7 +56,7 @@ func (repo *AccountRepository) GetByEmail(ctx context.Context, a models.AccountR
 		"public_place": &account.PublicPlace,
 		"zip_code":     &account.ZipCode,
 	}
-	err := repo.scylla.ScanMap(ctx, stmt, results, a.Email)
+	err := repo.scylla.ScanMap(ctx, stmt, results, a.Email, a.FullNumber)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return nil, nil

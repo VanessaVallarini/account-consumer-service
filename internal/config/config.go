@@ -17,7 +17,6 @@ func NewConfig() *models.Config {
 		HealthServerHost: viperConfig.GetString("HEALTH_SERVER_HOST"),
 		Database:         buildDatabaseConfig(viperConfig),
 		Kafka:            buildKafkaClientConfig(viperConfig),
-		ViaCep:           buildViaCepClientConfig(viperConfig),
 	}
 }
 
@@ -73,14 +72,5 @@ func buildKafkaClientConfig(config *viper.Viper) *models.KafkaConfig {
 		DlqTopic:               config.GetString("KAFKA_DLQ_TOPIC"),
 		ConsumerTopic:          config.GetString("KAFKA_CONSUMER_TOPIC"),
 		ConsumerGroup:          config.GetString("KAFKA_CONSUMER_GROUP"),
-	}
-}
-
-func buildViaCepClientConfig(config *viper.Viper) *models.ViaCepConfig {
-	return &models.ViaCepConfig{
-		Url:                   config.GetString("VIA_CEP_URL"),
-		MaxRetriesHttpRequest: config.GetInt("VIA_CEP_MAX_RETRIES_HTTP_REQUEST"),
-		MaxFailureRatio:       config.GetFloat64("VIA_CEP_MAX_FAILURE_RATIO"),
-		Name:                  config.GetString("VIA_CEP_NAME"),
 	}
 }

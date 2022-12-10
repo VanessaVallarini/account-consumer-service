@@ -1,19 +1,16 @@
 package main
 
 import (
-	api "account-consumer-service/api/account"
 	"account-consumer-service/cmd/account-consumer-service/health"
 	"account-consumer-service/cmd/account-consumer-service/listner"
 	"account-consumer-service/cmd/account-consumer-service/server"
 	"account-consumer-service/internal/config"
 	"account-consumer-service/internal/models"
-	"account-consumer-service/internal/pkg/clients"
 	"account-consumer-service/internal/pkg/db"
 	"account-consumer-service/internal/pkg/kafka"
 	"account-consumer-service/internal/pkg/repository"
 	"account-consumer-service/internal/pkg/services"
 	"account-consumer-service/internal/pkg/utils"
-	"account-consumer-service/pkg"
 	"context"
 
 	"github.com/labstack/echo"
@@ -39,22 +36,10 @@ func main() {
 		utils.Logger.Warn("error during create kafka client")
 	}
 
-	kafkaProducer, err := kafkaClient.NewProducer()
-	if err != nil {
-		utils.Logger.Warn("error during kafka producer")
-	}
-
-	viaCepApiClient, err := clients.NewViaCepApiClient(config.ViaCep)
-	if err != nil {
-		utils.Logger.Warn("error during kafka producer")
-	}
-
-	accountServiceProducer := pkg.NewAccountServiceProducer(*kafkaProducer, *viaCepApiClient)
-
 	go listner.Start(ctx, config.Kafka, accountServiceConsumer, kafkaClient)
 
 	go func() {
-		setupHttpServer(accountServiceProducer, config)
+		setupHttpServer(config)
 	}()
 
 	utils.Logger.Info("start application")
@@ -62,12 +47,8 @@ func main() {
 	health.NewHealthServer()
 }
 
-func setupHttpServer(asp *pkg.AccountServiceProducer, config *models.Config) *echo.Echo {
-
-	accountApi := api.NewAccountApi(asp)
+func setupHttpServer(config *models.Config) *echo.Echo {
 	s := server.NewServer()
-	accountApi.Register(s.Server)
-
 	s.Start(config)
 
 	return s.Server

@@ -3,7 +3,6 @@ package kafka
 import (
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/services"
-	"account-consumer-service/internal/pkg/utils"
 	"context"
 	"log"
 	"os"
@@ -107,32 +106,14 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 	for {
 		select {
 		case message := <-claim.Messages():
-			consumer.sendTo(claim.Topic(), message)
+			ctx := context.Background()
+			if err := consumer.processMessage(ctx, message); err != nil {
+				consumer.sendToDlq(ctx, consumer.dlqTopic, message)
+			}
 			session.MarkMessage(message, "")
 		case <-session.Context().Done():
 			return nil
 		}
-	}
-}
-
-func (consumer *Consumer) sendTo(topic string, message *sarama.ConsumerMessage) {
-	switch topic {
-	case "account_create":
-		consumer.accountCreate(topic, message)
-	}
-}
-
-func (consumer *Consumer) accountCreate(topic string, message *sarama.ConsumerMessage) {
-	ctx := context.Background()
-	var ac models.AccountCreateEvent
-
-	if err := consumer.sr.Decode(message.Value, &ac, models.AccountCreateSubject); err != nil {
-		utils.Logger.Error("error during decode message consumer kafka")
-		consumer.sendToDlq(ctx, dlqTopicCreateAccount, message)
-	}
-
-	if err := consumer.accountServiceConsumer.CreateAccount(ctx, ac); err != nil {
-		consumer.sendToDlq(ctx, dlqTopicCreateAccount, message)
 	}
 }
 
