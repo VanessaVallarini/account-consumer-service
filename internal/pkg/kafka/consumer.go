@@ -20,7 +20,11 @@ import (
 	"go.uber.org/zap"
 )
 
-const dlqTopicCreateAccount = "ccount_create_dlq"
+const (
+	topic_create_dlq = "account_create_dlq"
+	topic_update_dlq = "account_update_dlq"
+	topic_delete_dlq = "account_delete_dlq"
+)
 
 type Consumer struct {
 	ready                  chan bool
@@ -108,7 +112,7 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 		case message := <-claim.Messages():
 			ctx := context.Background()
 			if err := consumer.processMessage(ctx, message); err != nil {
-				//consumer.sendToDlq(ctx, consumer.dlqTopic, message)
+				consumer.sendToDlq(ctx, consumer.dlqTopic, message)
 			}
 			session.MarkMessage(message, "")
 		case <-session.Context().Done():
@@ -118,6 +122,8 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 }
 
 func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, message *sarama.ConsumerMessage) {
+	dlqTopic = consumer.getTopicDlq(ctx, message)
+
 	ctx, span := otel.GetTracerProvider().Tracer("consumer").Start(ctx, "sendToDlq")
 	defer span.End()
 	msg := &sarama.ProducerMessage{
@@ -141,4 +147,17 @@ func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, messag
 	span.SetAttributes(attribute.Int("partition", int(partition)))
 	span.SetAttributes(attribute.Int64("offset", offset))
 	zap.S().Infof("Message sent to dlq: topic = %s, partition = %v, offset = %v", dlqTopic, partition, offset)
+}
+
+func (consumer *Consumer) getTopicDlq(ctx context.Context, message *sarama.ConsumerMessage) string {
+	switch message.Topic {
+	case topic_create:
+		return topic_create_dlq
+	case topic_update:
+		return topic_update_dlq
+	case topic_delete:
+		return topic_delete_dlq
+	}
+
+	return ""
 }
