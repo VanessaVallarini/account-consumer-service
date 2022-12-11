@@ -25,7 +25,7 @@ const dlqTopicCreateAccount = "ccount_create_dlq"
 type Consumer struct {
 	ready                  chan bool
 	dlqTopic               string
-	consumerTopic          string
+	consumerTopic          []string
 	sr                     *SchemaRegistry
 	producer               sarama.SyncProducer //usar no futuro para enviar para DLQ
 	accountServiceConsumer *services.AccountService
@@ -48,7 +48,7 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 			ctx := context.Background()
 			propagators := propagation.TraceContext{}
 			handler := otelsarama.WrapConsumerGroupHandler(&consumer, otelsarama.WithPropagators(propagators))
-			if err := kafkaClient.GroupClient.Consume(ctx, []string{cfg.ConsumerTopic}, handler); err != nil {
+			if err := kafkaClient.GroupClient.Consume(ctx, cfg.ConsumerTopic, handler); err != nil {
 				zap.S().Errorf("Error from consumer: %v", err)
 			}
 			if ctx.Err() != nil {
@@ -108,7 +108,7 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 		case message := <-claim.Messages():
 			ctx := context.Background()
 			if err := consumer.processMessage(ctx, message); err != nil {
-				consumer.sendToDlq(ctx, consumer.dlqTopic, message)
+				//consumer.sendToDlq(ctx, consumer.dlqTopic, message)
 			}
 			session.MarkMessage(message, "")
 		case <-session.Context().Done():

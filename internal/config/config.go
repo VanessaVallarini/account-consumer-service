@@ -70,7 +70,7 @@ func buildKafkaClientConfig(config *viper.Viper) *models.KafkaConfig {
 		MaxMessageBytes:        config.GetInt("KAFKA_MAX_MESSAGE_BYTES"),
 		RetryMax:               config.GetInt("KAFKA_RETRY_MAX"),
 		DlqTopic:               config.GetString("KAFKA_DLQ_TOPIC"),
-		ConsumerTopic:          config.GetString("KAFKA_CONSUMER_TOPIC"),
+		ConsumerTopic:          cast.ToStringSlice(config.GetString("KAFKA_CONSUMER_TOPIC")),
 		ConsumerGroup:          config.GetString("KAFKA_CONSUMER_GROUP"),
 	}
 }

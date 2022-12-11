@@ -23,6 +23,8 @@ Service responsible for account management.
     - Possui toda configuração do docker.
 
 ## Running
+- `Docker`
+    - Run the following command: docker-compose -f local-dev/docker-compose.yaml --profile infra up -d
 - `Config DB`
     - JDBC url: jdbc:cassandra://localhost:9042;AuthMech=1;UID=cassandra;PWD=cassandra
     - Host: localhost
@@ -30,8 +32,6 @@ Service responsible for account management.
     - Username: cassandra
     - Password: cassandra
     - Run the commands available at: account-consumer-service/build/package/docker/scylla/cql/V001_setup.cql
-- `Docker`
-    - Run the following command: docker-compose -f local-dev/docker-compose.yaml --profile infra up -d
 - `Run the project`
     - Run -> start debugging -> to allow
 

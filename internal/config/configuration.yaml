@@ -29,5 +29,5 @@ KAFKA_ENABLE_EVENTS: true
 KAFKA_MAX_MESSAGE_BYTES: 0
 KAFKA_RETRY_MAX: 0
 KAFKA_DLQ_TOPIC: "ccount_create_dlq"
-KAFKA_CONSUMER_TOPIC: "account_create"
+KAFKA_CONSUMER_TOPIC: "account_create account_update account_delete"
 KAFKA_CONSUMER_GROUP: "account-consumer-service"
