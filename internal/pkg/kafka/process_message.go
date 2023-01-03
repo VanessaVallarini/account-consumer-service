@@ -71,9 +71,9 @@ func (consumer *Consumer) deleteAccount(ctx context.Context, message *sarama.Con
 		return err
 	}
 
-	if err := consumer.accountServiceConsumer.DeleteAccount(ctx, ac); err != nil {
-		return err
-	}
+	//if err := consumer.accountServiceConsumer.DeleteAccount(ctx, ac); err != nil {
+	//return err
+	//}
 
 	return nil
 }

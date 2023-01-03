@@ -1,0 +1,529 @@
+{
+	"info": {
+		"_postman_id": "6bd61fde-e54a-492a-b6fc-bcb7c5a5282a",
+		"name": "kafka local",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20948507"
+	},
+	"item": [
+		{
+			"name": "Subjects Create",
+			"item": [
+				{
+					"name": "create schema account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account\\\",\\\"namespace\\\":\\\"com.account\\\",\\\"fields\\\":[{\\\"name\\\":\\\"id\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"alias\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"city\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"district\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"public_place\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"zip_code\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"status\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create schema account dlq",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account_DLQ\\\",\\\"namespace\\\":\\\"com.account.dlq\\\",\\\"fields\\\":[{\\\"name\\\":\\\"id\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"alias\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"city\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"district\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"public_place\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"zip_code\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"status\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account.dlq/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account.dlq",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create schema create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account_Create\\\",\\\"namespace\\\":\\\"com.account.create\\\",\\\"fields\\\":[{\\\"name\\\":\\\"alias\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"city\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"district\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"public_place\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"zip_code\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account.create/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account.create",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create schema create dlq",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account_Create_Dlq\\\",\\\"namespace\\\":\\\"com.account.create.dlq\\\",\\\"fields\\\":[{\\\"name\\\":\\\"alias\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"city\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"district\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"public_place\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"zip_code\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account.create.dlq/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account.create.dlq",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create schema update",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account_Update\\\",\\\"namespace\\\":\\\"com.account.update\\\",\\\"fields\\\":[{\\\"name\\\":\\\"id\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"alias\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"city\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"district\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"public_place\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"zip_code\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"status\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account.update/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account.update",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create schema update dlq",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account_Update_Dlq\\\",\\\"namespace\\\":\\\"com.account.update.dlq\\\",\\\"fields\\\":[{\\\"name\\\":\\\"id\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"alias\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"city\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"district\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"name\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"public_place\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"zip_code\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"status\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account.update.dlq/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account.update.dlq",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create schema delete",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account_Delete\\\",\\\"namespace\\\":\\\"com.account.delete\\\",\\\"fields\\\":[{\\\"name\\\":\\\"id\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"}{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account.delete/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account.delete",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create schema delete dlq",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"schema\": \"{\\\"type\\\":\\\"record\\\",\\\"name\\\":\\\"Account_Delete_Dlq\\\",\\\"namespace\\\":\\\"com.account.delete.dlq\\\",\\\"fields\\\":[{\\\"name\\\":\\\"id\\\",\\\"type\\\":\\\"string\\\"},{\\\"name\\\":\\\"email\\\",\\\"type\\\":\\\"string\\\"}{\\\"name\\\":\\\"full_number\\\",\\\"type\\\":\\\"string\\\"}]}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/subjects/com.account.delete.dlq/versions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"subjects",
+								"com.account.delete.dlq",
+								"versions"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "http://localhost:8081/subjects/com.account.producer/versions Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/subjects",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"subjects"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8081/subjects/com.account.producer/versions Copy 2",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/subjects/:my_subject/versions/:my_versions?permanent=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"subjects",
+						":my_subject",
+						"versions",
+						":my_versions"
+					],
+					"query": [
+						{
+							"key": "permanent",
+							"value": "true"
+						}
+					],
+					"variable": [
+						{
+							"key": "my_subject",
+							"value": "account_create-value"
+						},
+						{
+							"key": "my_versions",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"create@email.com\",\n    \"full_number\": \"5511964127229\",\n    \"name\": \"Create\",\n    \"zip_code\": \"86060-660\"  \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1002/v1/accounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1002",
+					"path": [
+						"v1",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createToUpdate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"createToUpdate@email.com\",\n    \"full_number\": \"5511964127220\",\n    \"name\": \"createToUpdate\",\n    \"zip_code\": \"86060-660\"  \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1002/v1/accounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1002",
+					"path": [
+						"v1",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createToDelete",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"createToDelete@email.com\",\n    \"full_number\": \"5511964127221\",\n    \"name\": \"createToDelete\",\n    \"zip_code\": \"86060-660\"  \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1002/v1/accounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1002",
+					"path": [
+						"v1",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"createToUpdate2@email.com\",\n    \"full_number\": \"5511964127221\",\n    \"name\": \"createToUpdate2\",\n    \"zip_code\": \"86060-660\"  \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:1002/v1/accounts/6c73fe57-44b8-46cd-a448-d77beaa138ce",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1002",
+					"path": [
+						"v1",
+						"accounts",
+						"6c73fe57-44b8-46cd-a448-d77beaa138ce"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update Copy",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:1002/v1/accounts/d351f2cd-8f9f-48d5-8b85-587f1c786458",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1002",
+					"path": [
+						"v1",
+						"accounts",
+						"d351f2cd-8f9f-48d5-8b85-587f1c786458"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "consulta cep",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://viacep.com.br/ws/86060660/json/",
+					"protocol": "https",
+					"host": [
+						"viacep",
+						"com",
+						"br"
+					],
+					"path": [
+						"ws",
+						"86060660",
+						"json",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
