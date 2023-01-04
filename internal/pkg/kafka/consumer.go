@@ -21,27 +21,32 @@ import (
 )
 
 const (
-	topic_create_dlq = "account_create_dlq"
-	topic_update_dlq = "account_update_dlq"
-	topic_delete_dlq = "account_delete_dlq"
+	topic_account_createorupdate_dlq = "account_createorupdate_dlq"
+	topic_account_delete_dlq         = "account_delete_dlq"
+	topic_account_get_dlq            = "account_get_dlq"
+	topic_account_get_response_dlq   = "account_get_response_dlq"
+	topic_account_createorupdate     = "account_createorupdate"
+	topic_account_delete             = "account_delete"
+	topic_account_get                = "account_get"
+	topic_account_get_response       = "account_get_response"
 )
 
 type Consumer struct {
-	ready                  chan bool
-	dlqTopic               string
-	consumerTopic          []string
-	sr                     *SchemaRegistry
-	producer               sarama.SyncProducer //usar no futuro para enviar para DLQ
-	accountServiceConsumer *services.AccountService
+	ready          chan bool
+	dlqTopic       string
+	consumerTopic  []string
+	sr             *SchemaRegistry
+	producer       sarama.SyncProducer //usar no futuro para enviar para DLQ
+	accountService *services.AccountService
 }
 
-func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, asc *services.AccountService) error {
+func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, accountService *services.AccountService) error {
 	consumer := Consumer{
-		sr:                     kafkaClient.SchemaRegistry,
-		ready:                  make(chan bool),
-		dlqTopic:               cfg.DlqTopic,
-		consumerTopic:          cfg.ConsumerTopic,
-		accountServiceConsumer: asc,
+		sr:             kafkaClient.SchemaRegistry,
+		ready:          make(chan bool),
+		dlqTopic:       cfg.DlqTopic,
+		consumerTopic:  cfg.ConsumerTopic,
+		accountService: accountService,
 	}
 
 	wg := &sync.WaitGroup{} //tratar erros em go rotinas de forma concorrente
@@ -122,7 +127,9 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 }
 
 func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, message *sarama.ConsumerMessage) {
-	dlqTopic = consumer.getTopicDlq(ctx, message)
+	if topic := consumer.getTopicDlq(ctx, message); topic != "" {
+		dlqTopic = topic
+	}
 
 	ctx, span := otel.GetTracerProvider().Tracer("consumer").Start(ctx, "sendToDlq")
 	defer span.End()
@@ -151,12 +158,12 @@ func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, messag
 
 func (consumer *Consumer) getTopicDlq(ctx context.Context, message *sarama.ConsumerMessage) string {
 	switch message.Topic {
-	case topic_create:
-		return topic_create_dlq
-	case topic_update:
-		return topic_update_dlq
-	case topic_delete:
-		return topic_delete_dlq
+	case topic_account_createorupdate:
+		return topic_account_createorupdate_dlq
+	case topic_account_delete:
+		return topic_account_delete_dlq
+	case topic_account_get:
+		return topic_account_get_dlq
 	}
 
 	return ""
