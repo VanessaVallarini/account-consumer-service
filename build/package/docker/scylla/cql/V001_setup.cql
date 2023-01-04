@@ -2,17 +2,15 @@ CREATE KEYSPACE account_consumer_service WITH REPLICATION = { 'class' : 'SimpleS
 
 CREATE TABLE account_consumer_service.account
 (
-	id uuid
+	email text
 	,name text
-	,email text
 	,alias text
 	,city text
 	,district text
 	,public_place text
 	,zip_code text
 	,full_number text
-	,PRIMARY KEY(id)
+	,status text
+	,date_time text
+	,PRIMARY KEY(email, full_number)
 );
-
-CREATE INDEX ON account_consumer_service.account(email);
-CREATE INDEX ON account_consumer_service.account(full_number);

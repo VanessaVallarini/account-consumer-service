@@ -34,31 +34,11 @@ func (consumer *Consumer) processMessage(ctx context.Context, message *sarama.Co
 }
 
 func (consumer *Consumer) createAccount(ctx context.Context, message *sarama.ConsumerMessage) error {
-	var ac models.AccountCreateEvent
-
-	if err := consumer.sr.Decode(message.Value, &ac, models.AccountCreateSubject); err != nil {
-		utils.Logger.Error("error during decode message consumer kafka")
-		return err
-	}
-
-	if err := consumer.accountServiceConsumer.CreateAccount(ctx, ac); err != nil {
-		return err
-	}
 
 	return nil
 }
 
 func (consumer *Consumer) updateAccount(ctx context.Context, message *sarama.ConsumerMessage) error {
-	var ac models.AccountUpdateEvent
-
-	if err := consumer.sr.Decode(message.Value, &ac, models.AccountUpdateSubject); err != nil {
-		utils.Logger.Error("error during decode message consumer kafka")
-		return err
-	}
-
-	if err := consumer.accountServiceConsumer.UpdateAccount(ctx, ac); err != nil {
-		return err
-	}
 
 	return nil
 }
