@@ -19,6 +19,10 @@ func (consumer *Consumer) processMessage(ctx context.Context, message *sarama.Co
 		if err := consumer.deleteAccount(ctx, message); err != nil {
 			return err
 		}
+	case topic_account_get:
+		if err := consumer.getAccount(ctx, message); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -36,7 +40,7 @@ func (consumer *Consumer) createAccount(ctx context.Context, message *sarama.Con
 		return err
 	}
 
-	if err := consumer.getAccount(ctx, account.Email); err != nil {
+	if err := consumer.sendAccount(ctx, account.Email); err != nil {
 		return err
 	}
 
@@ -55,27 +59,42 @@ func (consumer *Consumer) deleteAccount(ctx context.Context, message *sarama.Con
 		return err
 	}
 
-	if err := consumer.getAccount(ctx, account.Email); err != nil {
+	if err := consumer.sendAccount(ctx, account.Email); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (consumer *Consumer) getAccount(ctx context.Context, email string) error {
+func (consumer *Consumer) getAccount(ctx context.Context, message *sarama.ConsumerMessage) error {
+	var account models.AccountGetEvent
+
+	if err := consumer.sr.Decode(message.Value, &account, models.AccountGetSubject); err != nil {
+		utils.Logger.Error("error during decode message consumer kafka")
+		return err
+	}
+
+	if err := consumer.sendAccount(ctx, account.Email); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (consumer *Consumer) sendAccount(ctx context.Context, email string) error {
 
 	account, err := consumer.accountService.GetByEmail(ctx, email)
 	if err != nil {
 		return err
 	}
 
-	msgEncoder, err := consumer.sr.Encode(account, models.AccountGetSubject)
+	msgEncoder, err := consumer.sr.Encode(account, models.AccountGetResponseSubject)
 	if err != nil {
 		utils.Logger.Error("error during decode message consumer kafka")
 	}
 
 	msg := &sarama.ProducerMessage{
-		Topic:     topic_account_get,
+		Topic:     topic_account_get_response,
 		Key:       sarama.ByteEncoder(time.Now().String()),
 		Value:     sarama.ByteEncoder(msgEncoder),
 		Timestamp: time.Now(),
