@@ -9,7 +9,7 @@ import (
 )
 
 type IAccountService interface {
-	CreateAccount(ctx context.Context, ae models.AccountCreateOrUpdateEvent) error
+	CreateOrUpdateAccount(ctx context.Context, ae models.AccountCreateOrUpdateEvent) error
 	DeleteAccount(ctx context.Context, ade models.AccountDeleteEvent)
 	GetByEmail(ctx context.Context, ade models.AccountGetEvent) (*models.Account, error)
 }
@@ -35,7 +35,7 @@ func (service *AccountService) CreateOrUpdate(ctx context.Context, ace models.Ac
 		District:    ace.District,
 		Name:        ace.Name,
 		PublicPlace: ace.PublicPlace,
-		Status:      ace.Status,
+		Status:      models.AccountStatusString(ace.Status).String(),
 		ZipCode:     ace.ZipCode,
 	}
 

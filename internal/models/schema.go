@@ -69,6 +69,50 @@ const (
 			 }	   
 		]
 	 }`
+	AccountGetResponseSubject = "com.account.getresponse"
+	AccountGetResponseAvro    = `{
+		"type":"record",
+		"name":"Account_Get_Response",
+		"namespace":"com.account.getresponse",
+		"fields":[
+			 {
+				"name":"email",
+				"type":"string"
+			 },
+			 {
+				"name":"full_number",
+				"type":"string"
+			 },
+			 {
+				"name":"alias",
+				"type":"string"
+			 },
+			 {
+				"name":"city",
+				"type":"string"
+			 },
+			 {
+				"name":"district",
+				"type":"string"
+			 },
+			 {
+				"name":"name",
+				"type":"string"
+			 },
+			 {
+				"name":"public_place",
+				"type":"string"
+			 },
+			 {
+				"name":"status",
+				"type":"string"
+			 },
+			 {
+				"name":"zip_code",
+				"type":"string"
+			 }		   
+		]
+	 }`
 )
 
 type AccountCreateOrUpdateEvent struct {
@@ -89,4 +133,16 @@ type AccountDeleteEvent struct {
 
 type AccountGetEvent struct {
 	Email string `json:"email" avro:"email"`
+}
+
+type AccountGetResponseEvent struct {
+	Email       string `json:"email" avro:"email"`
+	FullNumber  string `json:"full_number" avro:"full_number"`
+	Alias       string `json:"alias" avro:"alias"`
+	City        string `json:"city" avro:"city"`
+	District    string `json:"district" avro:"district"`
+	Name        string `json:"name" avro:"name"`
+	PublicPlace string `json:"public_place" avro:"public_place"`
+	Status      string `json:"status" avro:"status"`
+	ZipCode     string `json:"zip_code" avro:"zip_code"`
 }

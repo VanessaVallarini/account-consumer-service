@@ -3,29 +3,28 @@ package models
 type AccountStatus int32
 
 const (
-	Pending AccountStatus = iota
-	Active
+	Active AccountStatus = iota
 	Disabled
 )
 
-func (fs AccountStatus) String() string {
-	switch fs {
+func (as AccountStatus) String() string {
+	switch as {
 	case Active:
 		return "ACTIVE"
 	case Disabled:
 		return "DESABLE"
 	}
 
-	return "unkown"
+	return "DESABLE"
 }
 
-func AccountStatusString(status string) string {
+func AccountStatusString(status string) AccountStatus {
 	switch status {
 	case "ACTIVE":
-		return "ACTIVE"
+		return Active
 	case "DESABLE":
-		return "DESABLE"
+		return Disabled
 	}
 
-	return "ACTIVE"
+	return Disabled
 }

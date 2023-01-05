@@ -79,7 +79,19 @@ func (consumer *Consumer) getAccount(ctx context.Context, message *sarama.Consum
 }
 
 func (consumer *Consumer) returnAccount(accountResp *models.Account) error {
-	msgEncoder, err := consumer.sr.Encode(accountResp, models.AccountGetSubject)
+	account := models.AccountGetResponseEvent{
+		Email:       accountResp.Email,
+		FullNumber:  accountResp.FullNumber,
+		Alias:       accountResp.Alias,
+		City:        accountResp.City,
+		District:    accountResp.District,
+		Name:        accountResp.Name,
+		PublicPlace: accountResp.PublicPlace,
+		Status:      models.AccountStatusString(accountResp.Status).String(),
+		ZipCode:     accountResp.ZipCode,
+	}
+
+	msgEncoder, err := consumer.sr.Encode(account, models.AccountGetResponseSubject)
 	if err != nil {
 		utils.Logger.Error("error during decode message consumer kafka")
 	}
