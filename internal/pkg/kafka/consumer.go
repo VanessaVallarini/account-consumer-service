@@ -28,7 +28,6 @@ const (
 	topic_account_createorupdate     = "account_createorupdate"
 	topic_account_delete             = "account_delete"
 	topic_account_get                = "account_get"
-	topic_account_get_response       = "account_get_response"
 )
 
 type Consumer struct {

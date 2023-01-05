@@ -28,13 +28,13 @@ func main() {
 	}
 	defer scylla.Close()
 
-	accountRepository := repository.NewAccountRepository(scylla)
-	accountService := services.NewAccountService(accountRepository)
-
 	kafkaClient, err := kafka.NewKafkaClient(config.Kafka)
 	if err != nil {
 		utils.Logger.Warn("error during create kafka client")
 	}
+
+	accountRepository := repository.NewAccountRepository(scylla)
+	accountService := services.NewAccountService(accountRepository)
 
 	go listner.Start(ctx, config.Kafka, kafkaClient, accountService)
 

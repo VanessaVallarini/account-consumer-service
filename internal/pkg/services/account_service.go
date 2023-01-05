@@ -72,9 +72,9 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade models.Acc
 	return nil
 }
 
-func (service *AccountService) GetByEmail(ctx context.Context, ade models.AccountGetEvent) (*models.Account, error) {
+func (service *AccountService) GetByEmail(ctx context.Context, email string) (*models.Account, error) {
 	request := models.AccountRequestByEmail{
-		Email: ade.Email,
+		Email: email,
 	}
 
 	account, err := service.repository.GetByEmail(ctx, request)

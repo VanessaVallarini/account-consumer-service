@@ -19,10 +19,6 @@ func (consumer *Consumer) processMessage(ctx context.Context, message *sarama.Co
 		if err := consumer.deleteAccount(ctx, message); err != nil {
 			return err
 		}
-	case topic_account_get:
-		if err := consumer.getAccount(ctx, message); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -37,6 +33,10 @@ func (consumer *Consumer) createAccount(ctx context.Context, message *sarama.Con
 	}
 
 	if err := consumer.accountService.CreateOrUpdate(ctx, account); err != nil {
+		return err
+	}
+
+	if err := consumer.getAccount(ctx, account.Email); err != nil {
 		return err
 	}
 
@@ -55,49 +55,27 @@ func (consumer *Consumer) deleteAccount(ctx context.Context, message *sarama.Con
 		return err
 	}
 
-	return nil
-}
-
-func (consumer *Consumer) getAccount(ctx context.Context, message *sarama.ConsumerMessage) error {
-	var account models.AccountGetEvent
-
-	if err := consumer.sr.Decode(message.Value, &account, models.AccountGetSubject); err != nil {
-		utils.Logger.Error("error during decode message consumer kafka")
+	if err := consumer.getAccount(ctx, account.Email); err != nil {
 		return err
 	}
 
-	accountResp, err := consumer.accountService.GetByEmail(ctx, account)
+	return nil
+}
+
+func (consumer *Consumer) getAccount(ctx context.Context, email string) error {
+
+	account, err := consumer.accountService.GetByEmail(ctx, email)
 	if err != nil {
 		return err
 	}
 
-	if err := consumer.returnAccount(accountResp); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (consumer *Consumer) returnAccount(accountResp *models.Account) error {
-	account := models.AccountGetResponseEvent{
-		Email:       accountResp.Email,
-		FullNumber:  accountResp.FullNumber,
-		Alias:       accountResp.Alias,
-		City:        accountResp.City,
-		District:    accountResp.District,
-		Name:        accountResp.Name,
-		PublicPlace: accountResp.PublicPlace,
-		Status:      models.AccountStatusString(accountResp.Status).String(),
-		ZipCode:     accountResp.ZipCode,
-	}
-
-	msgEncoder, err := consumer.sr.Encode(account, models.AccountGetResponseSubject)
+	msgEncoder, err := consumer.sr.Encode(account, models.AccountGetSubject)
 	if err != nil {
 		utils.Logger.Error("error during decode message consumer kafka")
 	}
 
 	msg := &sarama.ProducerMessage{
-		Topic:     topic_account_get_response,
+		Topic:     topic_account_get,
 		Key:       sarama.ByteEncoder(time.Now().String()),
 		Value:     sarama.ByteEncoder(msgEncoder),
 		Timestamp: time.Now(),

@@ -57,20 +57,8 @@ const (
 			 }	   
 		]
 	 }`
-	AccountGetSubject = "com.account.get"
+	AccountGetSubject = "com.account.getresponse"
 	AccountGetAvro    = `{
-		"type":"record",
-		"name":"Account_Get",
-		"namespace":"com.account.get",
-		"fields":[
-			{
-				"name":"email",
-				"type":"string"
-			 }	   
-		]
-	 }`
-	AccountGetResponseSubject = "com.account.getresponse"
-	AccountGetResponseAvro    = `{
 		"type":"record",
 		"name":"Account_Get_Response",
 		"namespace":"com.account.getresponse",
@@ -132,10 +120,6 @@ type AccountDeleteEvent struct {
 }
 
 type AccountGetEvent struct {
-	Email string `json:"email" avro:"email"`
-}
-
-type AccountGetResponseEvent struct {
 	Email       string `json:"email" avro:"email"`
 	FullNumber  string `json:"full_number" avro:"full_number"`
 	Alias       string `json:"alias" avro:"alias"`
