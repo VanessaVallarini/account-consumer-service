@@ -1,11 +1,11 @@
 package kafka
 
 import (
-	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/utils"
 	"context"
 
 	"github.com/Shopify/sarama"
+	"github.com/VanessaVallarini/account-toolkit/avros"
 )
 
 func (consumer *Consumer) processMessage(ctx context.Context, message *sarama.ConsumerMessage) error {
@@ -28,9 +28,9 @@ func (consumer *Consumer) processMessage(ctx context.Context, message *sarama.Co
 }
 
 func (consumer *Consumer) createAccount(ctx context.Context, message *sarama.ConsumerMessage) error {
-	var account models.AccountCreateOrUpdateEvent
+	var account avros.AccountCreateOrUpdateEvent
 
-	if err := consumer.sr.Decode(message.Value, &account, models.AccountCreateOrUpdateSubject); err != nil {
+	if err := consumer.sr.Decode(message.Value, &account, avros.AccountCreateOrUpdateSubject); err != nil {
 		utils.Logger.Error("error during decode message consumer kafka")
 		return err
 	}
@@ -47,9 +47,9 @@ func (consumer *Consumer) createAccount(ctx context.Context, message *sarama.Con
 }
 
 func (consumer *Consumer) deleteAccount(ctx context.Context, message *sarama.ConsumerMessage) error {
-	var account models.AccountDeleteEvent
+	var account avros.AccountDeleteEvent
 
-	if err := consumer.sr.Decode(message.Value, &account, models.AccountDeleteSubject); err != nil {
+	if err := consumer.sr.Decode(message.Value, &account, avros.AccountDeleteSubject); err != nil {
 		utils.Logger.Error("error during decode message consumer kafka")
 		return err
 	}
@@ -66,9 +66,9 @@ func (consumer *Consumer) deleteAccount(ctx context.Context, message *sarama.Con
 }
 
 func (consumer *Consumer) getAccount(ctx context.Context, message *sarama.ConsumerMessage) error {
-	var account models.AccountGetEvent
+	var account avros.AccountGetEvent
 
-	if err := consumer.sr.Decode(message.Value, &account, models.AccountGetSubject); err != nil {
+	if err := consumer.sr.Decode(message.Value, &account, avros.AccountGetSubject); err != nil {
 		utils.Logger.Error("error during decode message consumer kafka")
 		return err
 	}
@@ -87,7 +87,7 @@ func (consumer *Consumer) sendAccount(ctx context.Context, email string) error {
 		return err
 	}
 
-	aSend := models.AccountGetResponseEvent{
+	aSend := avros.AccountGetResponseEvent{
 		Email:       account.Email,
 		FullNumber:  account.FullNumber,
 		Alias:       account.Alias,
@@ -99,7 +99,7 @@ func (consumer *Consumer) sendAccount(ctx context.Context, email string) error {
 		ZipCode:     account.ZipCode,
 	}
 
-	consumer.producer.Send(aSend, topic_account_get_response, models.AccountResponseSubject)
+	consumer.producer.Send(aSend, topic_account_get_response, avros.AccountResponseSubject)
 
 	if err != nil {
 		utils.Logger.Error("error during send msg %v", err)

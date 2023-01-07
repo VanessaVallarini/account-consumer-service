@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
+	"github.com/VanessaVallarini/account-toolkit/avros"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -170,11 +171,11 @@ func (consumer *Consumer) getTopicDlq(message *sarama.ConsumerMessage) string {
 func (consumer *Consumer) getSubject(dlqTopic string) string {
 	switch dlqTopic {
 	case topic_account_createorupdate_dlq:
-		return models.AccountCreateOrUpdateSubject
+		return avros.AccountCreateOrUpdateSubject
 	case topic_account_delete_dlq:
-		return models.AccountDeleteSubject
+		return avros.AccountDeleteSubject
 	case topic_account_get_dlq:
-		return models.AccountGetSubject
+		return avros.AccountGetSubject
 	}
 
 	return ""

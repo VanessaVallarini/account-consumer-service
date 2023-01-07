@@ -65,6 +65,7 @@ require (
 )
 
 require (
+	github.com/VanessaVallarini/account-toolkit v0.0.0-20230107133113-2ec2e2ed30bd
 	github.com/gocql/gocql v1.2.1
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/spf13/viper v1.13.0

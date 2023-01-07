@@ -6,12 +6,14 @@ import (
 	"account-consumer-service/internal/pkg/utils"
 	"context"
 	"time"
+
+	"github.com/VanessaVallarini/account-toolkit/avros"
 )
 
 type IAccountService interface {
-	CreateOrUpdateAccount(ctx context.Context, ae models.AccountCreateOrUpdateEvent) error
-	DeleteAccount(ctx context.Context, ade models.AccountDeleteEvent)
-	GetByEmail(ctx context.Context, ade models.AccountGetEvent) (*models.Account, error)
+	CreateOrUpdateAccount(ctx context.Context, ae avros.AccountCreateOrUpdateEvent) error
+	DeleteAccount(ctx context.Context, ade avros.AccountDeleteEvent)
+	GetByEmail(ctx context.Context, ade avros.AccountGetEvent) (*models.Account, error)
 }
 
 type AccountService struct {
@@ -24,7 +26,7 @@ func NewAccountService(repo repository.IAccountRepository) *AccountService {
 	}
 }
 
-func (service *AccountService) CreateOrUpdate(ctx context.Context, ace models.AccountCreateOrUpdateEvent) error {
+func (service *AccountService) CreateOrUpdate(ctx context.Context, ace avros.AccountCreateOrUpdateEvent) error {
 
 	account := models.Account{
 		Email:       ace.Email,
@@ -48,7 +50,7 @@ func (service *AccountService) CreateOrUpdate(ctx context.Context, ace models.Ac
 	return nil
 }
 
-func (service *AccountService) DeleteAccount(ctx context.Context, ade models.AccountDeleteEvent) error {
+func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.AccountDeleteEvent) error {
 	request := models.AccountRequestByEmail{
 		Email: ade.Email,
 	}
