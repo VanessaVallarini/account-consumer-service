@@ -74,20 +74,6 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.Acco
 	return nil
 }
 
-func (service *AccountService) GetByEmail(ctx context.Context, email string) (*models.Account, error) {
-	request := models.AccountRequestByEmail{
-		Email: email,
-	}
-
-	account, err := service.repository.GetByEmail(ctx, request)
-	if err != nil {
-		utils.Logger.Error("error during get account", err)
-		return nil, err
-	}
-
-	return account, nil
-}
-
 func (service *AccountService) shouldDeleteAccount(ctx context.Context, request models.AccountRequestByEmail) (bool, error) {
 	accountRespByEmailAndFullNumber, err := service.repository.GetByEmail(ctx, request)
 	if accountRespByEmailAndFullNumber == nil {
