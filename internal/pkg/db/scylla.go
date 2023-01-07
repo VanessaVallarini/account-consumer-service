@@ -11,8 +11,6 @@ import (
 type IScylla interface {
 	Insert(ctx context.Context, stmt string, arguments ...interface{}) error
 	ScanMap(ctx context.Context, stmt string, results map[string]interface{}, arguments ...interface{}) error
-	ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error)
-	Update(ctx context.Context, stmt string, arguments ...interface{}) error
 	Delete(ctx context.Context, stmt string, arguments ...interface{}) error
 	Close()
 }
@@ -50,16 +48,6 @@ func (s *Scylla) Insert(ctx context.Context, stmt string, arguments ...interface
 func (s *Scylla) ScanMap(ctx context.Context, stmt string, results map[string]interface{}, arguments ...interface{}) error {
 	q := s.session.Query(stmt, arguments...).WithContext(ctx)
 	return q.MapScan(results)
-}
-
-func (s *Scylla) ScanMapSlice(ctx context.Context, stmt string, arguments ...interface{}) ([]map[string]interface{}, error) {
-	q := s.session.Query(stmt, arguments...).WithContext(ctx)
-	return q.Iter().SliceMap()
-}
-
-func (s *Scylla) Update(ctx context.Context, stmt string, arguments ...interface{}) error {
-	q := s.session.Query(stmt, arguments...).WithContext(ctx)
-	return q.Exec()
 }
 
 func (s *Scylla) Delete(ctx context.Context, stmt string, arguments ...interface{}) error {
