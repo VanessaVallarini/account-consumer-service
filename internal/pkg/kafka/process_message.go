@@ -4,7 +4,6 @@ import (
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/utils"
 	"context"
-	"time"
 
 	"github.com/Shopify/sarama"
 )
@@ -88,21 +87,22 @@ func (consumer *Consumer) sendAccount(ctx context.Context, email string) error {
 		return err
 	}
 
-	msgEncoder, err := consumer.sr.Encode(account, models.AccountGetResponseSubject)
-	if err != nil {
-		utils.Logger.Error("error during decode message consumer kafka")
+	aSend := models.AccountGetResponseEvent{
+		Email:       account.Email,
+		FullNumber:  account.FullNumber,
+		Alias:       account.Alias,
+		City:        account.City,
+		District:    account.District,
+		Name:        account.Name,
+		PublicPlace: account.PublicPlace,
+		Status:      account.Status,
+		ZipCode:     account.ZipCode,
 	}
 
-	msg := &sarama.ProducerMessage{
-		Topic:     topic_account_get_response,
-		Key:       sarama.ByteEncoder(time.Now().String()),
-		Value:     sarama.ByteEncoder(msgEncoder),
-		Timestamp: time.Now(),
-	}
+	consumer.producer.Send(aSend, topic_account_get_response, models.AccountResponseSubject)
 
-	partition, offset, err := consumer.producer.SendMessage(msg)
 	if err != nil {
-		utils.Logger.Error("error during send msg. partition: %v, offset: %v", msg, partition, offset)
+		utils.Logger.Error("error during send msg %v", err)
 		return err
 	}
 
