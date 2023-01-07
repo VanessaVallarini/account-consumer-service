@@ -11,6 +11,6 @@ import (
 func Start(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *kafka.KafkaClient, accountService *services.AccountService) {
 	err := kafka.NewConsumer(ctx, cfg, kafkaClient, accountService)
 	if err != nil {
-		utils.Logger.Error("Error consumer msg: %v", err)
+		utils.Logger.Errorf("Error consumer msg: %v", err)
 	}
 }

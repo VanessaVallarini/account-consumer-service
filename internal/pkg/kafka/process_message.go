@@ -20,7 +20,7 @@ func (consumer *Consumer) processMessage(ctx context.Context, message *sarama.Co
 			return err
 		}
 	default:
-		return errors.New("Invalid topic.")
+		return errors.New("invalid topic.")
 	}
 
 	return nil
@@ -30,7 +30,7 @@ func (consumer *Consumer) createAccount(ctx context.Context, message *sarama.Con
 	var account avros.AccountCreateOrUpdateEvent
 
 	if err := consumer.sr.Decode(message.Value, &account, avros.AccountCreateOrUpdateSubject); err != nil {
-		utils.Logger.Error("Error during decode message consumer kafka on create account. Details: %v", err)
+		utils.Logger.Errorf("Error during decode message consumer kafka on create account. Details: %v", err)
 		return err
 	}
 
@@ -45,7 +45,7 @@ func (consumer *Consumer) deleteAccount(ctx context.Context, message *sarama.Con
 	var account avros.AccountDeleteEvent
 
 	if err := consumer.sr.Decode(message.Value, &account, avros.AccountDeleteSubject); err != nil {
-		utils.Logger.Error("Error during decode message consumer kafka on delete account. Details: %v", err)
+		utils.Logger.Errorf("Error during decode message consumer kafka on delete account. Details: %v", err)
 		return err
 	}
 

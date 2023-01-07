@@ -2,6 +2,7 @@ package db
 
 import (
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/utils"
 	"context"
 
 	"github.com/gocql/gocql"
@@ -20,7 +21,7 @@ type Scylla struct {
 	session *gocql.Session
 }
 
-func NewScylla(c *models.DatabaseConfig) (*Scylla, error) {
+func NewScylla(c *models.DatabaseConfig) *Scylla {
 	cluster := gocql.NewCluster(c.DatabaseHost)
 	cluster.Authenticator = gocql.PasswordAuthenticator{
 		Username: c.DatabaseUser,
@@ -32,12 +33,13 @@ func NewScylla(c *models.DatabaseConfig) (*Scylla, error) {
 
 	session, err := cluster.CreateSession()
 	if err != nil {
-		return nil, err
+		utils.Logger.Fatal("failed to create session", err)
+		panic(session)
 	}
 
 	return &Scylla{
 		session: session,
-	}, nil
+	}
 }
 
 func (s *Scylla) Insert(ctx context.Context, stmt string, arguments ...interface{}) error {

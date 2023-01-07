@@ -17,18 +17,13 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/Shopify/sarama/otelsarama"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-	"go.uber.org/zap"
 )
 
 const (
 	topic_account_createorupdate_dlq = "account_createorupdate_dlq"
 	topic_account_delete_dlq         = "account_delete_dlq"
-	topic_account_get_dlq            = "account_get_dlq"
-	topic_account_get_response_dlq   = "account_get_response_dlq"
 	topic_account_createorupdate     = "account_createorupdate"
 	topic_account_delete             = "account_delete"
-	topic_account_get                = "account_get"
-	topic_account_get_response       = "account_get_response"
 )
 
 type Consumer struct {
@@ -44,7 +39,7 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 
 	kafkaProducer, err := kafkaClient.NewProducer()
 	if err != nil {
-		utils.Logger.Warn("error during kafka producer")
+		utils.Logger.Fatal("Error during kafka producer. Details: %v", err)
 		panic(kafkaProducer)
 	}
 
@@ -57,7 +52,7 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 		accountService: accountService,
 	}
 
-	wg := &sync.WaitGroup{} //tratar erros em go rotinas de forma concorrente
+	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -66,15 +61,15 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 			propagators := propagation.TraceContext{}
 			handler := otelsarama.WrapConsumerGroupHandler(&consumer, otelsarama.WithPropagators(propagators))
 			if err := kafkaClient.GroupClient.Consume(ctx, cfg.ConsumerTopic, handler); err != nil {
-				zap.S().Errorf("Error from consumer: %v", err)
+				utils.Logger.Errorf("Error from consumer: %v", err)
 			}
 			if ctx.Err() != nil {
 				err := kafkaClient.GroupClient.Close()
 				if err != nil {
-					zap.S().Fatalf("Error from consumer: %v", err)
+					utils.Logger.Errorf("Error from consumer: %v", err)
 				}
 
-				zap.S().Info("consume closed, consuming again")
+				utils.Logger.Info("consume closed, consuming again")
 			}
 
 			consumer.ready = make(chan bool)
@@ -82,7 +77,7 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 	}()
 
 	<-consumer.ready
-	zap.S().Info("Sarama consumer up and running!...")
+	utils.Logger.Info("Sarama consumer up and running!...")
 
 	sigusr1 := make(chan os.Signal, 1)
 	signal.Notify(sigusr1, syscall.SIGUSR1)
@@ -97,7 +92,8 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 
 	wg.Wait()
 	if err := kafkaClient.GroupClient.Close(); err != nil {
-		zap.S().Panicf("Error closing groupClient: %v", err)
+		utils.Logger.Fatal("Error closing groupClient: %v", err)
+		panic(kafkaClient.GroupClient.Close())
 	}
 	return nil
 }
@@ -139,6 +135,8 @@ func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, messag
 		dlqTopic = topic
 	}
 
+	subject := consumer.getSubject(dlqTopic)
+
 	ctx, span := otel.GetTracerProvider().Tracer("consumer").Start(ctx, "sendToDlq")
 	defer span.End()
 	msg := &sarama.ProducerMessage{
@@ -151,7 +149,6 @@ func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, messag
 		msg.Headers = append(msg.Headers, *header)
 	}
 
-	subject := consumer.getSubject(dlqTopic)
 	consumer.producer.Send(msg, dlqTopic, subject)
 }
 
@@ -161,10 +158,9 @@ func (consumer *Consumer) getTopicDlq(message *sarama.ConsumerMessage) string {
 		return topic_account_createorupdate_dlq
 	case topic_account_delete:
 		return topic_account_delete_dlq
-	case topic_account_get:
-		return topic_account_get_dlq
 	}
 
+	utils.Logger.Errorf("DLQ topic not found. Topic message: %v", message.Topic)
 	return ""
 }
 
@@ -174,9 +170,8 @@ func (consumer *Consumer) getSubject(dlqTopic string) string {
 		return avros.AccountCreateOrUpdateSubject
 	case topic_account_delete_dlq:
 		return avros.AccountDeleteSubject
-	case topic_account_get_dlq:
-		return avros.AccountGetSubject
 	}
 
+	utils.Logger.Errorf("DLQ topic invalid. Topic: %v", dlqTopic)
 	return ""
 }

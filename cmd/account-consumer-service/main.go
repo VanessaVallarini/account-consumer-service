@@ -22,16 +22,10 @@ func main() {
 
 	config := config.NewConfig()
 
-	scylla, err := db.NewScylla(config.Database)
-	if err != nil {
-		utils.Logger.Error("error during create scylla", err)
-	}
+	scylla := db.NewScylla(config.Database)
 	defer scylla.Close()
 
-	kafkaClient, err := kafka.NewKafkaClient(config.Kafka)
-	if err != nil {
-		utils.Logger.Warn("error during create kafka client")
-	}
+	kafkaClient := kafka.NewKafkaClient(config.Kafka)
 
 	accountRepository := repository.NewAccountRepository(scylla)
 	accountService := services.NewAccountService(accountRepository)

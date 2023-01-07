@@ -13,7 +13,6 @@ import (
 type IAccountService interface {
 	CreateOrUpdateAccount(ctx context.Context, ae avros.AccountCreateOrUpdateEvent) error
 	DeleteAccount(ctx context.Context, ade avros.AccountDeleteEvent)
-	GetByEmail(ctx context.Context, ade avros.AccountGetEvent) (*models.Account, error)
 }
 
 type AccountService struct {
@@ -43,7 +42,7 @@ func (service *AccountService) CreateOrUpdate(ctx context.Context, ace avros.Acc
 
 	err := service.repository.CreateOrUpdate(ctx, account)
 	if err != nil {
-		utils.Logger.Error("error during create account", err)
+		utils.Logger.Errorf("error during create account", err)
 		return err
 	}
 
@@ -57,14 +56,14 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.Acco
 
 	shouldCreateAccount, err := service.shouldDeleteAccount(ctx, request)
 	if err != nil {
-		utils.Logger.Error("error during verify should update account", err)
+		utils.Logger.Errorf("error during verify should update account", err)
 		return err
 	}
 
 	if shouldCreateAccount {
 		err := service.repository.Delete(ctx, request)
 		if err != nil {
-			utils.Logger.Error("error during delete account", err)
+			utils.Logger.Errorf("error during delete account", err)
 			return err
 		}
 	} else {
@@ -77,7 +76,7 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.Acco
 func (service *AccountService) shouldDeleteAccount(ctx context.Context, request models.AccountRequestByEmail) (bool, error) {
 	accountRespByEmailAndFullNumber, err := service.repository.GetByEmail(ctx, request)
 	if accountRespByEmailAndFullNumber == nil {
-		utils.Logger.Error("account does not exist", err)
+		utils.Logger.Errorf("account does not exist", err)
 		return false, nil
 	}
 
