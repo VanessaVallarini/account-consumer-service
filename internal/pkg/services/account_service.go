@@ -56,7 +56,7 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.Acco
 
 	shouldCreateAccount, err := service.shouldDeleteAccount(ctx, request)
 	if err != nil {
-		utils.Logger.Errorf("error during verify should update account", err)
+		utils.Logger.Errorf("error during verify should delete account", err)
 		return err
 	}
 
@@ -75,6 +75,11 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.Acco
 
 func (service *AccountService) shouldDeleteAccount(ctx context.Context, request models.AccountRequestByEmail) (bool, error) {
 	accountRespByEmailAndFullNumber, err := service.repository.GetByEmail(ctx, request)
+	if err != nil {
+		utils.Logger.Errorf("error during get account by email", err)
+		return false, err
+	}
+
 	if accountRespByEmailAndFullNumber == nil {
 		utils.Logger.Errorf("account does not exist", err)
 		return false, nil
