@@ -28,7 +28,7 @@ const (
 
 type Consumer struct {
 	ready          chan bool
-	dlqTopic       string
+	dlqTopic       []string
 	consumerTopic  []string
 	sr             *SchemaRegistry
 	producer       *IProducer
@@ -130,17 +130,15 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 	}
 }
 
-func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, message *sarama.ConsumerMessage) {
-	if topic := consumer.getTopicDlq(message); topic != "" {
-		dlqTopic = topic
-	}
+func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic []string, message *sarama.ConsumerMessage) {
+	topic := consumer.getTopicDlq(message)
 
-	subject := consumer.getSubject(dlqTopic)
+	subject := consumer.getSubject(topic)
 
 	ctx, span := otel.GetTracerProvider().Tracer("consumer").Start(ctx, "sendToDlq")
 	defer span.End()
 	msg := &sarama.ProducerMessage{
-		Topic:     dlqTopic,
+		Topic:     topic,
 		Key:       sarama.ByteEncoder(message.Key),
 		Value:     sarama.ByteEncoder(message.Value),
 		Timestamp: time.Now(),
@@ -149,7 +147,7 @@ func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic string, messag
 		msg.Headers = append(msg.Headers, *header)
 	}
 
-	consumer.producer.Send(msg, dlqTopic, subject)
+	consumer.producer.Send(msg, topic, subject)
 }
 
 func (consumer *Consumer) getTopicDlq(message *sarama.ConsumerMessage) string {

@@ -37,7 +37,7 @@ type KafkaConfig struct {
 	EnableEvents           bool
 	MaxMessageBytes        int
 	RetryMax               int
-	DlqTopic               string
+	DlqTopic               []string
 	ConsumerTopic          []string
 	ConsumerGroup          string
 }
