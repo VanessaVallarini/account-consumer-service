@@ -37,11 +37,7 @@ type Consumer struct {
 
 func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, accountService *services.AccountService) error {
 
-	kafkaProducer, err := kafkaClient.NewProducer()
-	if err != nil {
-		utils.Logger.Fatal("Error during kafka producer. Details: %v", err)
-		panic(kafkaProducer)
-	}
+	kafkaProducer := kafkaClient.NewProducer()
 
 	consumer := Consumer{
 		ready:          make(chan bool),
@@ -135,7 +131,7 @@ func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic []string, mess
 
 	subject := consumer.getSubject(topic)
 
-	ctx, span := otel.GetTracerProvider().Tracer("consumer").Start(ctx, "sendToDlq")
+	_, span := otel.GetTracerProvider().Tracer("consumer").Start(ctx, "sendToDlq")
 	defer span.End()
 	msg := &sarama.ProducerMessage{
 		Topic:     topic,

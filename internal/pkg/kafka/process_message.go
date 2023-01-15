@@ -20,7 +20,7 @@ func (consumer *Consumer) processMessage(ctx context.Context, message *sarama.Co
 			return err
 		}
 	default:
-		return errors.New("invalid topic.")
+		return errors.New("invalid topic")
 	}
 
 	return nil
