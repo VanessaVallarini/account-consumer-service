@@ -1,18 +1,21 @@
 import os, sys
+from urllib.request import urlretrieve
 
 os.chdir(os.path.dirname(sys.argv[0]))
 
 from diagrams import Cluster, Diagram, Edge
 from diagrams.k8s.compute import Pod
 from diagrams.onprem.queue import Kafka
-from diagrams.aws.database import Aurora
 from diagrams.k8s.network import Service
+from diagrams.custom import Custom
 
-
-with Diagram("account consumer service", show = False):
+with Diagram("account consumer service", show = False, direction="TB"):
     blueline=Edge(color="blue",style="bold")
     darkOrange=Edge(color="darkOrange",style="bold")
     blackline=Edge(color="black",style="bold")
+    scylladb_url = "https://upload.wikimedia.org/wikipedia/en/2/20/Scylla_the_sea_monster.png"
+    scylladb_icon = "rabbitmq.png"
+    urlretrieve(scylladb_url, scylladb_icon)
 
     with Cluster("account-consumer-pod"):
         consumerPod=Pod("account-consumer-pod")
@@ -20,12 +23,18 @@ with Diagram("account consumer service", show = False):
     with Cluster("external"):
        consumerCreateKafka=Kafka("account-create")
        consumerUpdateKafka=Kafka("account-update") 
-       accountAvros=Service("account-toolkit")  
+       consumerCreateKafkaDlq=Kafka("account-create-dlq")
+       consumerUpdateKafkaDlq=Kafka("account-update-dlq") 
+
+    with Cluster("internal"):
+       accountAvros=Service("account-toolkit")
 
     with Cluster("scyllaDb"):
-       accountDatabase=Aurora("account-database")
+       accountDatabase=Custom("account-database",scylladb_icon)
 
     consumerPod - darkOrange >> consumerCreateKafka
     consumerPod - darkOrange >> consumerUpdateKafka
+    consumerPod - darkOrange >> consumerCreateKafkaDlq
+    consumerPod - darkOrange >> consumerUpdateKafkaDlq
     consumerPod - blackline >> accountAvros
     consumerPod - blueline >> accountDatabase
