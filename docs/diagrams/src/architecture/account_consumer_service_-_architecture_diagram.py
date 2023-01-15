@@ -6,7 +6,6 @@ os.chdir(os.path.dirname(sys.argv[0]))
 from diagrams import Cluster, Diagram, Edge
 from diagrams.k8s.compute import Pod
 from diagrams.onprem.queue import Kafka
-from diagrams.k8s.network import Service
 from diagrams.custom import Custom
 from diagrams.programming.language import Go
 
