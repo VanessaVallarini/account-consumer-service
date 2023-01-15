@@ -8,6 +8,7 @@ from diagrams.k8s.compute import Pod
 from diagrams.onprem.queue import Kafka
 from diagrams.k8s.network import Service
 from diagrams.custom import Custom
+from diagrams.programming.language import Go
 
 with Diagram("account consumer service", show = False, direction="TB"):
     blueline=Edge(color="blue",style="bold")
@@ -27,7 +28,7 @@ with Diagram("account consumer service", show = False, direction="TB"):
        consumerUpdateKafkaDlq=Kafka("account-update-dlq") 
 
     with Cluster("internal"):
-       accountAvros=Service("account-toolkit")
+       accountAvros=Go("account-toolkit")
 
     with Cluster("scyllaDb"):
        accountDatabase=Custom("account-database",scylladb_icon)
