@@ -21,10 +21,10 @@ with Diagram("account consumer service", show = False, direction="TB"):
         consumerPod=Pod("account-consumer-pod")
 
     with Cluster("external"):
-       consumerCreateKafka=Kafka("account-create")
-       consumerUpdateKafka=Kafka("account-update") 
-       consumerCreateKafkaDlq=Kafka("account-create-dlq")
-       consumerUpdateKafkaDlq=Kafka("account-update-dlq") 
+       consumerCreateKafka=Kafka("account-createorupdate")
+       consumerUpdateKafka=Kafka("account-createorupdate-dlq") 
+       consumerCreateKafkaDlq=Kafka("account-delete")
+       consumerUpdateKafkaDlq=Kafka("account-delete-dlq") 
 
     with Cluster("internal"):
        accountAvros=Go("account-toolkit")
