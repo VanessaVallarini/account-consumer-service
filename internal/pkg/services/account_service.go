@@ -42,7 +42,7 @@ func (service *AccountService) CreateOrUpdate(ctx context.Context, ace avros.Acc
 
 	err := service.repository.CreateOrUpdate(ctx, account)
 	if err != nil {
-		utils.Logger.Errorf("error during create account", err)
+		utils.Logger.Error("account consumer failed during create account: %v", err)
 		return err
 	}
 
@@ -56,14 +56,14 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.Acco
 
 	shouldCreateAccount, err := service.shouldDeleteAccount(ctx, request)
 	if err != nil {
-		utils.Logger.Errorf("error during verify should delete account", err)
+		utils.Logger.Error("account consumer failed during verify should delete account: %v", err)
 		return err
 	}
 
 	if shouldCreateAccount {
 		err := service.repository.Delete(ctx, request)
 		if err != nil {
-			utils.Logger.Errorf("error during delete account", err)
+			utils.Logger.Error("account consumer failed during delete account: %v", err)
 			return err
 		}
 	} else {
@@ -76,12 +76,12 @@ func (service *AccountService) DeleteAccount(ctx context.Context, ade avros.Acco
 func (service *AccountService) shouldDeleteAccount(ctx context.Context, request models.AccountRequestByEmail) (bool, error) {
 	accountRespByEmailAndFullNumber, err := service.repository.GetByEmail(ctx, request)
 	if err != nil {
-		utils.Logger.Errorf("error during get account by email", err)
+		utils.Logger.Error("account consumer failed during get account by email: %v", err)
 		return false, err
 	}
 
 	if accountRespByEmailAndFullNumber == nil {
-		utils.Logger.Errorf("account does not exist", err)
+		utils.Logger.Error("account does not exist: %v", err)
 		return false, nil
 	}
 

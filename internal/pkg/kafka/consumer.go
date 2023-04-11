@@ -31,19 +31,16 @@ type Consumer struct {
 	dlqTopic       []string
 	consumerTopic  []string
 	sr             *SchemaRegistry
-	producer       *IProducer
+	producer       IKafkaProducer
 	accountService *services.AccountService
 }
 
-func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, accountService *services.AccountService) error {
-
-	kafkaProducer := kafkaClient.NewProducer()
-
+func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, kafkaProducer IKafkaProducer, accountService *services.AccountService) error {
 	consumer := Consumer{
 		ready:          make(chan bool),
 		dlqTopic:       cfg.DlqTopic,
 		consumerTopic:  cfg.ConsumerTopic,
-		sr:             kafkaClient.SchemaRegistry,
+		sr:             kafkaClient.saramaSchemaRegistry,
 		producer:       kafkaProducer,
 		accountService: accountService,
 	}
@@ -56,11 +53,11 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 			ctx := context.Background()
 			propagators := propagation.TraceContext{}
 			handler := otelsarama.WrapConsumerGroupHandler(&consumer, otelsarama.WithPropagators(propagators))
-			if err := kafkaClient.GroupClient.Consume(ctx, cfg.ConsumerTopic, handler); err != nil {
+			if err := kafkaClient.saramaConsumerGroup.Consume(ctx, cfg.ConsumerTopic, handler); err != nil {
 				utils.Logger.Errorf("Error from consumer: %v", err)
 			}
 			if ctx.Err() != nil {
-				err := kafkaClient.GroupClient.Close()
+				err := kafkaClient.saramaConsumerGroup.Close()
 				if err != nil {
 					utils.Logger.Errorf("Error from consumer: %v", err)
 				}
@@ -87,9 +84,9 @@ func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *Kafk
 	}
 
 	wg.Wait()
-	if err := kafkaClient.GroupClient.Close(); err != nil {
+	if err := kafkaClient.saramaConsumerGroup.Close(); err != nil {
 		utils.Logger.Fatal("Error closing groupClient: %v", err)
-		panic(kafkaClient.GroupClient.Close())
+		panic(kafkaClient.saramaConsumerGroup.Close())
 	}
 	return nil
 }

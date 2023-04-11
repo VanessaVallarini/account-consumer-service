@@ -19,7 +19,7 @@ type Scylla struct {
 	session *gocql.Session
 }
 
-func NewScylla(c *models.DatabaseConfig) *Scylla {
+func NewScylla(c *models.DatabaseConfig) (*Scylla, error) {
 	cluster := gocql.NewCluster(c.DatabaseHost)
 	cluster.Authenticator = gocql.PasswordAuthenticator{
 		Username: c.DatabaseUser,
@@ -27,17 +27,17 @@ func NewScylla(c *models.DatabaseConfig) *Scylla {
 	}
 	cluster.Keyspace = c.DatabaseKeyspace
 	cluster.ConnectTimeout = cluster.ConnectTimeout * 5
-	cluster.ProtoVersion = 3
+	cluster.ProtoVersion = 4
 
 	session, err := cluster.CreateSession()
 	if err != nil {
-		utils.Logger.Fatal("failed to create session", err)
-		panic(session)
+		utils.Logger.Error("failed to create session: %v", err)
+		return nil, err
 	}
 
 	return &Scylla{
 		session: session,
-	}
+	}, nil
 }
 
 func (s *Scylla) Insert(ctx context.Context, stmt string, arguments ...interface{}) error {

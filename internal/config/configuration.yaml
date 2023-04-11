@@ -1,6 +1,6 @@
 APP_NAME: "account-consumer-service"
-SERVER_HOST: "0.0.0.0:1000"
-HEALTH_SERVER_HOST: "0.0.0.0:1001"
+SERVER_HOST: "0.0.0.0:1004"
+HEALTH_SERVER_HOST: "0.0.0.0:1005"
 
 DATABASE_USER: "cassandra"
 DATEBASE_PASSWORD: "cassandra"
@@ -13,21 +13,12 @@ DATEBASE_RETRY_MAX: 10
 DATEBASE_NUM_RETRIES: 5
 DATEBASE_CLUSTER_TIMEOUT: 5
 
-KAFKA_CLIENT_ID: "account-consumer-service"
+KAFKA_CLIENT_ID: "account-consumer-service"    
 KAFKA_HOSTS: "localhost:9092"
-KAFKA_SCHEMA_REGISTRY_HOST: "http://localhost:8081"
-KAFKA_ACKS: "all"
-KAFKA_TIMEOUT: 10
-KAFKA_USE_AUTEHNTICATION: false
-KAFKA_ENABLE_TLS: true
+KAFKA_USE_AUTHENTICATION: "false"  
 KAFKA_SASL_MECHANISM: "SCRAM-SHA-512"
-KAFKA_USER: "kafka"
-KAFKA_PASSWORD: "kafka"
-KAFKA_SCHEMA_REGISTRY_USER: ""
-KAFKA_SCHEMA_REGISTRY_PASSWORD: ""
-KAFKA_ENABLE_EVENTS: true
-KAFKA_MAX_MESSAGE_BYTES: 0
-KAFKA_RETRY_MAX: 0
-KAFKA_DLQ_TOPIC: "account_createorupdate_dlq account_delete_dlq"
-KAFKA_CONSUMER_TOPIC: "account_createorupdate account_delete"
+KAFKA_ENABLE_TLS: "true"
+KAFKA_SCHEMA_REGISTRY_HOST: "http://localhost:8086"
+KAFKA_QLD_TOPIC_NAME: account_createorupdate_dlq account_delete_dlq
+KAFKA_CONSUMER_TOPIC_NAME: account_createorupdate account_delete
 KAFKA_CONSUMER_GROUP: "account-service"

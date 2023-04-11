@@ -1,37 +1,34 @@
 package server
 
 import (
+	"account-consumer-service/cmd/account-consumer-service/middleware"
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/utils"
 	"context"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo-contrib/prometheus"
+	"github.com/labstack/echo/v4"
 )
 
-type server struct {
+type Server struct {
 	Server *echo.Echo
 }
 
-func NewServer() *server {
+func NewServer() *Server {
+	m := middleware.NewMetrics()
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
-	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(middleware.Recover())
-	e.Use(middleware.Gzip())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization, echo.HeaderAccept},
-		AllowMethods: []string{echo.GET, echo.POST, echo.PATCH, echo.PUT},
-	}))
+	p := prometheus.NewPrometheus("echo", nil, m.MetricList())
+	p.Use(e)
+	e.Use(m.AddCustomMetricsMiddleware)
 
-	return &server{
+	return &Server{
 		Server: e,
 	}
 }
 
-func (s *server) Start(c *models.Config) {
+func (s *Server) Start(c *models.Config) {
 	utils.Logger.Info("starting server in port " + c.ServerHost)
 	err := s.Server.Start(c.ServerHost)
 

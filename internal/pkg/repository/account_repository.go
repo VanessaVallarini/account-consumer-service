@@ -31,7 +31,7 @@ func (repo *AccountRepository) CreateOrUpdate(ctx context.Context, a models.Acco
 				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 	err := repo.scylla.Insert(ctx, stmt, a.Email, a.FullNumber, a.Alias, a.City, a.DateTime, a.District, a.Name, a.PublicPlace, a.Status, a.ZipCode)
 	if err != nil {
-		utils.Logger.Errorf("error during query create account", err)
+		utils.Logger.Error("account producer failed during query create account: %v", err)
 		return err
 	}
 	return nil
@@ -41,7 +41,7 @@ func (repo *AccountRepository) Delete(ctx context.Context, a models.AccountReque
 	stmt := `DELETE from account WHERE email = ?`
 	err := repo.scylla.Delete(ctx, stmt, a.Email)
 	if err != nil {
-		utils.Logger.Errorf("error during query delete account", err)
+		utils.Logger.Error("account producer failed during query delete account: %v", err)
 		return err
 	}
 	return nil
@@ -67,7 +67,7 @@ func (repo *AccountRepository) GetByEmail(ctx context.Context, a models.AccountR
 		if strings.Contains(err.Error(), "not found") {
 			return nil, nil
 		}
-		utils.Logger.Errorf("error during query get account by email", err)
+		utils.Logger.Error("account producer failed during query get account by email: %v", err)
 		return nil, err
 	}
 

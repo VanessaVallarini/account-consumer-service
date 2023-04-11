@@ -8,8 +8,8 @@ import (
 	"context"
 )
 
-func Start(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *kafka.KafkaClient, accountService *services.AccountService) {
-	err := kafka.NewConsumer(ctx, cfg, kafkaClient, accountService)
+func Start(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *kafka.KafkaClient, kafkaProducer kafka.IKafkaProducer, accountService *services.AccountService) {
+	err := kafka.NewConsumer(ctx, cfg, kafkaClient, kafkaProducer, accountService)
 	if err != nil {
 		utils.Logger.Errorf("Error consumer msg: %v", err)
 	}

@@ -24,7 +24,7 @@ func TestScylla(t *testing.T) {
 		DatabaseClusterTimeout:      5,
 	}
 
-	scylla := NewScylla(&configDatabase)
+	scylla, _ := NewScylla(&configDatabase)
 
 	assert.NotNil(t, scylla)
 }
@@ -44,7 +44,7 @@ func TestScanMap(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		accountCreate := &models.Account{
@@ -102,7 +102,7 @@ func TestScanMap(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		stmt := `SELECT * FROM account WHERE email = ?`
@@ -140,7 +140,7 @@ func TestScanMap(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		stmt := `SELECT FROM account WHERE email = ?`
@@ -179,7 +179,7 @@ func TestInsert(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		accountCreate := &models.Account{
@@ -219,7 +219,7 @@ func TestInsert(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		accountCreate := &models.Account{
@@ -258,7 +258,7 @@ func TestInsert(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		accountCreate := &models.Account{
@@ -300,7 +300,7 @@ func TestDelete(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		accountCreate := &models.Account{
@@ -344,7 +344,7 @@ func TestDelete(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		accountCreate := &models.Account{
@@ -388,7 +388,7 @@ func TestDelete(t *testing.T) {
 			DatabaseNumRetries:          5,
 			DatabaseClusterTimeout:      5,
 		}
-		scylla := NewScylla(&configDatabase)
+		scylla, _ := NewScylla(&configDatabase)
 		ctx := context.Background()
 
 		accountCreate := &models.Account{

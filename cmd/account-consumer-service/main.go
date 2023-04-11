@@ -12,38 +12,50 @@ import (
 	"account-consumer-service/internal/pkg/services"
 	"account-consumer-service/internal/pkg/utils"
 	"context"
-
-	"github.com/labstack/echo"
 )
 
 func main() {
 
 	ctx := context.Background()
 
-	config := config.NewConfig()
+	config, err := config.NewConfig()
+	if err != nil {
+		panic(err)
+	}
 
-	scylla := db.NewScylla(config.Database)
+	scylla, err := db.NewScylla(config.Database)
+	if err != nil {
+		panic(err)
+	}
 	defer scylla.Close()
 
-	kafkaClient := kafka.NewKafkaClient(config.Kafka)
+	kafkaClient, err := kafka.NewKafkaClient(
+		config.Kafka,
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer kafkaClient.Close()
+
+	kafkaProducer, err := kafkaClient.NewProducer(config.Kafka)
+	if err != nil {
+		panic(err)
+	}
 
 	accountRepository := repository.NewAccountRepository(scylla)
 	accountService := services.NewAccountService(accountRepository)
 
-	go listner.Start(ctx, config.Kafka, kafkaClient, accountService)
+	go listner.Start(ctx, config.Kafka, kafkaClient, kafkaProducer, accountService)
 
 	go func() {
 		setupHttpServer(config)
 	}()
-
 	utils.Logger.Info("start application")
 
 	health.NewHealthServer()
 }
 
-func setupHttpServer(config *models.Config) *echo.Echo {
+func setupHttpServer(config *models.Config) {
 	s := server.NewServer()
 	s.Start(config)
-
-	return s.Server
 }
