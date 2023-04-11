@@ -59,11 +59,3 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
       KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8086
-
-  prometheus:
-    image: prom/prometheus:v2.30.3
-    ports:
-      - 9000:9090
-    volumes:
-      - ../build/package/docker/prometheus:/etc/prometheus
-    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml

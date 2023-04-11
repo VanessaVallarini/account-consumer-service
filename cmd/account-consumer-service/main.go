@@ -42,20 +42,22 @@ func main() {
 		panic(err)
 	}
 
+	server := server.NewServer()
+
 	accountRepository := repository.NewAccountRepository(scylla)
 	accountService := services.NewAccountService(accountRepository)
 
 	go listner.Start(ctx, config.Kafka, kafkaClient, kafkaProducer, accountService)
 
-	go func() {
-		setupHttpServer(config)
-	}()
+	setupHttpServer(server, config)
+
 	utils.Logger.Info("start application")
 
 	health.NewHealthServer()
 }
 
-func setupHttpServer(config *models.Config) {
-	s := server.NewServer()
-	s.Start(config)
+func setupHttpServer(server *server.Server, config *models.Config) {
+	go func() {
+		server.Start(config)
+	}()
 }
