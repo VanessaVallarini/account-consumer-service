@@ -8,6 +8,7 @@ import (
 	"account-consumer-service/internal/models"
 	"account-consumer-service/internal/pkg/db"
 	"account-consumer-service/internal/pkg/kafka"
+	"account-consumer-service/internal/pkg/metrics"
 	"account-consumer-service/internal/pkg/repository"
 	"account-consumer-service/internal/pkg/services"
 	"account-consumer-service/internal/pkg/utils"
@@ -42,12 +43,14 @@ func main() {
 		panic(err)
 	}
 
-	server := server.NewServer()
+	server := server.NewServer(config.AppName)
+
+	metrics := metrics.NewMetrics()
 
 	accountRepository := repository.NewAccountRepository(scylla)
 	accountService := services.NewAccountService(accountRepository)
 
-	go listner.Start(ctx, config.Kafka, kafkaClient, kafkaProducer, accountService)
+	go listner.Start(ctx, config.Kafka, kafkaClient, kafkaProducer, accountService, metrics)
 
 	setupHttpServer(server, config)
 

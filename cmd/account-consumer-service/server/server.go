@@ -6,19 +6,27 @@ import (
 	"context"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
 type Server struct {
 	Server *echo.Echo
 }
 
-func NewServer() *Server {
-	e := echo.New()
-	e.HideBanner = true
-	e.HidePort = true
-
+func NewServer(appName string) *Server {
+	svr := echo.New()
+	svr.Use(otelecho.Middleware(appName))
+	svr.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Skipper: func(c echo.Context) bool {
+			requestUri := c.Request().RequestURI
+			return requestUri == "/metrics" || requestUri == "/healthcheck/liveness" || requestUri == "/healthcheck/readiness"
+		},
+	}))
+	svr.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 	return &Server{
-		Server: e,
+		Server: svr,
 	}
 }
 

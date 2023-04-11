@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"account-consumer-service/internal/models"
+	"account-consumer-service/internal/pkg/metrics"
 	"account-consumer-service/internal/pkg/services"
 	"account-consumer-service/internal/pkg/utils"
 	"context"
@@ -30,19 +31,23 @@ type Consumer struct {
 	ready          chan bool
 	dlqTopic       []string
 	consumerTopic  []string
+	consumerGroup  string
 	sr             *SchemaRegistry
 	producer       IKafkaProducer
 	accountService *services.AccountService
+	metrics        *metrics.Metrics
 }
 
-func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, kafkaProducer IKafkaProducer, accountService *services.AccountService) error {
+func NewConsumer(ctx context.Context, cfg *models.KafkaConfig, kafkaClient *KafkaClient, kafkaProducer IKafkaProducer, accountService *services.AccountService, metrics *metrics.Metrics) error {
 	consumer := Consumer{
 		ready:          make(chan bool),
 		dlqTopic:       cfg.DlqTopic,
 		consumerTopic:  cfg.ConsumerTopic,
+		consumerGroup:  cfg.ConsumerGroup,
 		sr:             kafkaClient.saramaSchemaRegistry,
 		producer:       kafkaProducer,
 		accountService: accountService,
+		metrics:        metrics,
 	}
 
 	wg := &sync.WaitGroup{}
@@ -113,6 +118,11 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 		select {
 		case message := <-claim.Messages():
 			ctx := context.Background()
+
+			mv := []string{message.Topic, consumer.consumerGroup}
+			consumer.metrics.KafkaStrategyLagGauge.WithLabelValues(mv...).Set(float64(claim.HighWaterMarkOffset() - message.Offset - 1))
+			consumer.metrics.KafkaStrategyConsumedMessagesCounter.WithLabelValues(mv...).Inc()
+
 			if err := consumer.processMessage(ctx, message); err != nil {
 				consumer.sendToDlq(ctx, consumer.dlqTopic, message)
 			}
@@ -127,6 +137,9 @@ func (consumer *Consumer) sendToDlq(ctx context.Context, dlqTopic []string, mess
 	topic := consumer.getTopicDlq(message)
 
 	subject := consumer.getSubject(topic)
+
+	mv := []string{topic, consumer.consumerGroup}
+	consumer.metrics.KafkaStrategyDlqMessagesCounter.WithLabelValues(mv...).Inc()
 
 	_, span := otel.GetTracerProvider().Tracer("consumer").Start(ctx, "sendToDlq")
 	defer span.End()
